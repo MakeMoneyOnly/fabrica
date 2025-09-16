@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: habesha-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: habesha
+      POSTGRES_PASSWORD: habesha
+      POSTGRES_DB: habesha
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:4
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

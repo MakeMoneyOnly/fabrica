@@ -1,0 +1,1 @@
+[Content of ref/web/src/components/footer.tsx]

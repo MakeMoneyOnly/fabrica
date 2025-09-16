@@ -1,0 +1,272 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums for various types and statuses
+
+enum ProductType {
+  DIGITAL
+  COURSE
+  MEMBERSHIP
+  COACHING
+  WEBINAR
+  LINK
+  LEAD_MAGNET
+}
+
+enum BillingPeriod {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  WEBIRR
+  TELEBIRR
+  CHAPA
+  AMOLE
+  CBE_BIRR
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  PRODUCT_CLICK
+  LEAD_CAPTURE
+  SALE
+}
+
+// Core Models
+
+model User {
+  id               String      @id @default(cuid())
+  email            String      @unique
+  passwordHash     String
+  name             String?
+  amharicName      String? // For localization
+  avatarUrl        String?
+  twoFactorEnabled Boolean     @default(false)
+  stores           Store[]
+  affiliateIn      Affiliate[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Store {
+  id              String             @id @default(cuid())
+  name            String
+  slug            String             @unique
+  owner           User               @relation(fields: [ownerId], references: [id])
+  ownerId         String
+  logoUrl         String?
+  coverImageUrl   String?
+  theme           Json? // For storing theme settings (colors, fonts, etc.)
+  language        String             @default("en") // 'en' or 'am'
+  currency        String             @default("ETB")
+  products        Product[]
+  orders          Order[]
+  leads           Lead[]
+  analyticsEvents AnalyticsEvent[]
+  affiliates      Affiliate[]
+  gaTrackingId    String? // Google Analytics
+  fbPixelId       String? // Facebook Pixel
+  tiktokPixelId   String? // TikTok Pixel
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  store           Store          @relation(fields: [storeId], references: [id])
+  storeId         String
+  type            ProductType
+  title           String
+  description     String?
+  priceInt        Int // Price in cents
+  billingPeriod   BillingPeriod? // For MEMBERSHIP type
+  active          Boolean        @default(true)
+  // URLs for different product types
+  downloadUrl     String? // For DIGITAL
+  externalUrl     String? // For LINK
+  // Relations for complex product types
+  course          Course?        @relation(fields: [courseId], references: [id])
+  courseId       String?        @unique
+  webinar         Webinar?       @relation(fields: [webinarId], references: [id])
+  webinarId       String?        @unique
+  coaching        Coaching?      @relation(fields: [coachingId], references: [id])
+  coachingId      String?        @unique
+  metadata        Json? // For other details
+  orders          Order[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Customer {
+  id              String                  @id @default(cuid())
+  email           String                  @unique
+  name            String?
+  orders          Order[]
+  leads           Lead[]
+  paymentMethods  CustomerPaymentMethod[]
+  createdAt       DateTime                @default(now())
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  store       Store       @relation(fields: [storeId], references: [id])
+  storeId     String
+  product     Product     @relation(fields: [productId], references: [id])
+  productId   String
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  customerId  String
+  amountInt   Int
+  currency    String
+  status      OrderStatus @default(PENDING)
+  payment     Payment?
+  referral    Referral? // If the order came from an affiliate
+  createdAt   DateTime    @default(now())
+}
+
+model Payment {
+  id          String          @id @default(cuid())
+  provider    PaymentProvider
+  providerRef String? // Reference from the payment gateway
+  status      PaymentStatus   @default(INITIATED)
+  amountInt   Int
+  currency    String
+  order       Order           @relation(fields: [orderId], references: [id])
+  orderId     String          @unique
+  createdAt   DateTime        @default(now())
+}
+
+// Extended Models for Product Types
+
+model Course {
+  id       String    @id @default(cuid())
+  product  Product? // Back-relation to Product
+  modules  Module[]
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  title       String
+  course      Course   @relation(fields: [courseId], references: [id])
+  courseId    String
+  lessons     Lesson[]
+  order       Int // To maintain module order
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  videoUrl    String?
+  content     String?
+  module      Module   @relation(fields: [moduleId], references: [id])
+  moduleId    String
+  order       Int // To maintain lesson order
+}
+
+model Webinar {
+  id          String    @id @default(cuid())
+  product     Product? // Back-relation to Product
+  meetingUrl  String
+  startTime   DateTime
+  isRecorded  Boolean   @default(false)
+}
+
+model Coaching {
+  id          String    @id @default(cuid())
+  product     Product? // Back-relation to Product
+  bookingUrl  String // e.g., Calendly link
+}
+
+// Marketing & Analytics Models
+
+model Lead {
+  id         String   @id @default(cuid())
+  store      Store    @relation(fields: [storeId], references: [id])
+  storeId    String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  email      String
+  createdAt  DateTime @default(now())
+
+  @@unique([storeId, email])
+}
+
+model AnalyticsEvent {
+  id        String             @id @default(cuid())
+  store     Store              @relation(fields: [storeId], references: [id])
+  storeId   String
+  type      AnalyticsEventType
+  payload   Json?
+  createdAt DateTime           @default(now())
+}
+
+model Affiliate {
+  id          String       @id @default(cuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  store       Store        @relation(fields: [storeId], references: [id])
+  storeId     String
+  code        String       @unique // Affiliate's unique referral code
+  commissionRate  Decimal    @default(0.20) // e.g., 20%
+  referrals   Referral[]
+  commissions Commission[]
+  createdAt   DateTime     @default(now())
+
+  @@unique([userId, storeId])
+}
+
+model Referral {
+  id          String    @id @default(cuid())
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id])
+  affiliateId String
+  order       Order     @relation(fields: [orderId], references: [id])
+  orderId     String    @unique
+  commission  Commission?
+  createdAt   DateTime  @default(now())
+}
+
+model Commission {
+  id          String   @id @default(cuid())
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id])
+  affiliateId String
+  referral    Referral @relation(fields: [referralId], references: [id])
+  referralId  String   @unique
+  amountInt   Int
+  currency    String
+  isPaidOut   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// Customer & Payment Models
+
+model CustomerPaymentMethod {
+  id                String          @id @default(cuid())
+  customer          Customer        @relation(fields: [customerId], references: [id])
+  customerId        String
+  provider          PaymentProvider
+  providerToken     String // The token from the payment gateway (e.g., Chapa, Telebirr)
+  isDefault         Boolean         @default(false)
+  cardLastFour      String?
+  cardBrand         String?
+  createdAt         DateTime        @default(now())
+}

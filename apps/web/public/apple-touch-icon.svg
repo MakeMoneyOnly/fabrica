@@ -1,0 +1,32 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#3b82f6"/>
+
+  <!-- Store icon -->
+  <g transform="translate(45, 45)">
+    <!-- Shopping bag -->
+    <path d="M45 15c0-8.284-6.716-15-15-15s-15 6.716-15 15v30h30V15z" fill="#ffffff"/>
+    <rect x="15" y="30" width="30" height="30" rx="5" fill="#ffffff"/>
+    <rect x="20" y="35" width="20" height="5" rx="2" fill="#3b82f6"/>
+    <rect x="25" y="42" width="10" height="5" rx="2" fill="#3b82f6"/>
+    <rect x="25" y="49" width="10" height="5" rx="2" fill="#3b82f6"/>
+
+    <!-- Handle -->
+    <rect x="12" y="12" width="2" height="15" rx="1" fill="#ffffff"/>
+    <rect x="46" y="12" width="2" height="15" rx="1" fill="#ffffff"/>
+  </g>
+
+  <!-- Ethiopian inspired pattern -->
+  <g transform="translate(15, 135)" opacity="0.8">
+    <circle cx="7.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="22.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="37.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="52.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="67.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="82.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="97.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="112.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="127.5" cy="7.5" r="2" fill="#ffffff"/>
+    <circle cx="142.5" cy="7.5" r="2" fill="#ffffff"/>
+  </g>
+</svg>

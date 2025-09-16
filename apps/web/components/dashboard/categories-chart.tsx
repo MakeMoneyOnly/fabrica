@@ -1,0 +1,1 @@
+[Content of reference/components/dashboard/categories-chart.tsx]

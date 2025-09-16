@@ -1,0 +1,90 @@
+{
+  "name": "habesha-store",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "author": "Habesha Store Team",
+  "description": "Ethereum Creator Economy Platform - Web-focused Monorepo",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -n backend:4000,web:3001 -c green,blue \"pnpm --filter backend run start:dev\" \"pnpm --filter web run dev\"",
+    "dev:backend": "pnpm --workspace apps/backend run start:dev",
+    "dev:web": "pnpm --workspace apps/web run dev",
+    "build": "concurrently \"pnpm --filter backend run build\" \"pnpm --filter web run build\"",
+    "build:backend": "pnpm --workspace apps/backend run build",
+    "build:web": "pnpm --workspace apps/web run build",
+    "test": "pnpm --parallel -w run test",
+    "test:backend": "pnpm --workspace apps/backend run test",
+    "test:web": "pnpm --workspace apps/web run test",
+    "lint": "concurrently \"pnpm --filter backend run lint\" \"pnpm --filter web run lint\"",
+    "lint:backend": "pnpm --filter backend run lint",
+    "lint:web": "pnpm --filter web run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "pnpm --parallel -w run typecheck",
+    "clean": "pnpm --parallel -w run clean",
+    "install:all": "pnpm install",
+    "deps:check": "pnpm dlx depcheck",
+    "deps:update": "pnpm update --interactive",
+    "db:push": "pnpm --workspace apps/backend run db:push",
+    "db:migrate": "pnpm --workspace apps/backend run db:migrate",
+    "db:generate": "pnpm --filter backend run prisma:generate",
+    "db:seed": "pnpm --workspace apps/backend run db:seed",
+    "docker:up": "docker compose -f infra/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infra/docker-compose.yml down",
+    "infra:plan": "cd infra/terraform && terraform plan",
+    "infra:apply": "cd infra/terraform && terraform apply",
+    "infra:destroy": "cd infra/terraform && terraform destroy",
+    "ci:build": "pnpm build",
+    "ci:test": "pnpm test",
+    "ci:lint": "pnpm lint"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "^5.5.4",
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0",
+      "@nestjs/common": "^10.0.0",
+      "@nestjs/core": "^10.0.0"
+    }
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.10",
+    "@types/passport-jwt": "^3.0.13",
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-color": "^3.0.13",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "postcss": "^8.4.39",
+    "prettier": "^3.0.0",
+    "prisma": "^5.16.1",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
+  },
+  "resolutions": {
+    "typescript": "^5.5.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "bcryptjs": "^3.0.2",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-color": "^2.19.3"
+  }
+}

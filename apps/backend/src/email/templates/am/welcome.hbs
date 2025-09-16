@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="am" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>እንኳን ደህና መጣህ {{companyName}}!</title>
+  <style>
+    body { font-family: 'Noto Sans Ethiopic', Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; background-color: #f9f9f9; }
+    .button { display: inline-block; background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    .footer { background-color: #333; color: white; padding: 20px; text-align: center; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>እንኳን ደህና መጣህ {{companyName}}!</h1>
+    </div>
+
+    <div class="content">
+      <h2>ሰላም {{userName}}!</h2>
+
+      <p>እንኳን ደህና መጣህ {{companyName}}፣ የዲጂታል ምርቶች አርበኞ አድራሻህ ። ያልተለመዱ ፈጣሪዎችን እና ገዢዎችን አህያን ለማብበል ተስናሁ ነና ።</p>
+
+      <p>በመድረካ ላይ ለማስኬድ ያለህብት እነሆ:</p>
+      <ul>
+        <li>ያልተለመዱ ባህላሊዊ ፈጣሪዎች የፈጣሪዎ ምርቶችን ለመስራት</li>
+        <li>ለማከራየት እና ለማውረድ ግዜያዊ</li>
+        <li>ከፈጣሪዎች ጋር ተያያዝ እና ሥራአቸውን ለመርዳት</li>
+      </ul>
+
+      <p>በመርካታ ምርቶች ለመስራት ጀምር:</p>
+      <a href="{{loginUrl}}" class="button">ምርቶችን ለማስለተፍት</a>
+
+      <p>ምንም ላለው ጉዳዮች ካለህ እንርሳለን ገል በርድ ቡድናችንን ለማግናኘት ነፃ ነህ ።</p>
+
+      <p>እንኳን ደህና መጣህ!<br>{{companyName}} ቡድን</p>
+    </div>
+
+    <div class="footer">
+      <p>&copy; {{year}} {{companyName}}. ሁሉም መብታቶች ተለያዮባሉ.</p>
+      <p>Contact us: {{supportEmail}}</p>
+    </div>
+  </div>
+</body>
+</html>
