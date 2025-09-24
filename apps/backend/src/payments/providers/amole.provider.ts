@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 
-import { InitPaymentInput, PaymentProvider } from '../types';
+import { InitPaymentInput, PaymentProvider, PaymentInitializationResult, PaymentVerificationResult, WebhookResult } from '../types';
 
 interface AmoleConfig {
   apiUrl: string;
@@ -154,7 +154,9 @@ export class AmoleProvider implements PaymentProvider {
         throw error;
       }
 
-      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      // Check if error has axios-like properties
+      const axiosError = error as any;
+      if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
         throw new BadRequestException('Amole service temporarily unavailable due to network conditions');
       }
 
@@ -166,7 +168,7 @@ export class AmoleProvider implements PaymentProvider {
     try {
       this.logger.log(`Processing Amole webhook for transaction: ${payload.transactionId}`);
 
-      const isValidSignature = this.verifyWebhookSignature(payload);
+      const isValidSignature = this.verifyWebhookSignature(payload as AmoleWebhookPayload);
       if (!isValidSignature) {
         this.logger.error(`Invalid webhook signature for transaction: ${payload.transactionId}`);
         throw new BadRequestException('Invalid webhook signature');
@@ -220,12 +222,13 @@ export class AmoleProvider implements PaymentProvider {
       };
     } catch (error: unknown) {
       this.logger.error('Amole payment verification error:', error);
+      const axiosError = error as any;
       return {
         provider: 'AMOLE',
         transactionId: payload.transactionId,
         status: 'UNKNOWN',
         verified: false,
-        error: error.message,
+        error: axiosError.message || 'Unknown verification error',
       };
     }
   }

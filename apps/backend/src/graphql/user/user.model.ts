@@ -8,26 +8,17 @@ export class User {
   @Field({ description: 'User email address' })
   email!: string;
 
-  @Field({ description: 'User first name' })
-  firstName!: string;
+  @Field({ nullable: true, description: 'User full name' })
+  name?: string;
 
-  @Field({ description: 'User last name' })
-  lastName!: string;
+  @Field({ nullable: true, description: 'User name in Amharic for localization' })
+  amharicName?: string;
 
-  @Field({ description: 'Ethiopian phone number with local format (+251)' })
-  phoneNumber!: string;
+  @Field({ nullable: true, description: 'Profile avatar URL' })
+  avatarUrl?: string;
 
-  @Field({ description: 'User status: ACTIVE, INACTIVE, SUSPENDED' })
-  status!: string;
-
-  @Field({ nullable: true, description: 'User bio for Ethiopian market' })
-  bio?: string;
-
-  @Field({ nullable: true, description: 'Creator category: ARTISAN, DESIGNER, EDUCATOR, etc.' })
-  category?: string;
-
-  @Field({ nullable: true, description: 'Profile image URL' })
-  profileImage?: string;
+  @Field({ description: 'Two-factor authentication enabled' })
+  twoFactorEnabled!: boolean;
 
   @Field({ description: 'User creation timestamp' })
   createdAt!: Date;

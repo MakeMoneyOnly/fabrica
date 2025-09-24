@@ -18,7 +18,7 @@ const EXCLUDE_CLASSES = [
 export function wrapWithScrollBlurItem(children: React.ReactNode): React.ReactNode {
   if (!children) return null;
   if (Array.isArray(children)) {
-    return children.map((child) => wrapWithScrollBlurItem(child));
+    return children.map((child, i) => wrapWithScrollBlurItem(child));
   }
   if (typeof children === "string" || typeof children === "number") {
     return <ScrollBlurItem>{children}</ScrollBlurItem>;
@@ -28,30 +28,26 @@ export function wrapWithScrollBlurItem(children: React.ReactNode): React.ReactNo
     const className = (children.props && children.props.className) || "";
     // Exclude cards/containers
     if (EXCLUDE_CLASSES.some(cls => className.includes(cls))) {
-      return React.cloneElement(children, {
-        children: children.props && children.props.children
-          ? wrapWithScrollBlurItem(children.props.children)
-          : children.props.children
-      });
+      if (children.props && children.props.children) {
+        return React.cloneElement(children, {}, wrapWithScrollBlurItem(children.props.children));
+      }
+      return children;
     }
     // Only wrap if tag is in BLUR_TAGS
     if (BLUR_TAGS.includes(tag)) {
       return (
         <ScrollBlurItem>
           {children.props && children.props.children
-            ? React.cloneElement(children, {
-                children: wrapWithScrollBlurItem(children.props.children),
-              })
+            ? React.cloneElement(children, {}, wrapWithScrollBlurItem(children.props.children))
             : children}
         </ScrollBlurItem>
       );
     }
     // Otherwise, recurse
-    return React.cloneElement(children, {
-      children: children.props && children.props.children
-        ? wrapWithScrollBlurItem(children.props.children)
-        : children.props.children
-    });
+    if (children.props && children.props.children) {
+      return React.cloneElement(children, {}, wrapWithScrollBlurItem(children.props.children));
+    }
+    return children;
   }
   return children;
 }

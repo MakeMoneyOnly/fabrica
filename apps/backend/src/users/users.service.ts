@@ -12,11 +12,19 @@ export class UsersService {
       skip: options?.skip,
       take: options?.take,
       where: options?.where,
+      include: {
+        stores: true,
+      },
     });
   }
 
   async findOne(where: { id: string } | { email: string }) {
-    return this.prisma.prisma.user.findUnique({ where });
+    return this.prisma.prisma.user.findUnique({
+      where,
+      include: {
+        stores: true,
+      },
+    });
   }
 
   async findCreators(options?: { category?: string; skip?: number; take?: number }) {
@@ -43,12 +51,9 @@ export class UsersService {
   async create(data: {
     email: string;
     password: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    bio?: string;
-    category?: string;
-    profileImage?: string;
+    name?: string;
+    amharicName?: string;
+    avatarUrl?: string;
   }) {
     try {
       const passwordHash = await bcrypt.hash(data.password, 10);
@@ -56,8 +61,9 @@ export class UsersService {
         data: {
           email: data.email,
           passwordHash,
-          name: `${data.firstName} ${data.lastName}`,
-          avatarUrl: data.profileImage,
+          name: data.name,
+          amharicName: data.amharicName,
+          avatarUrl: data.avatarUrl,
         },
       });
     } catch (error: unknown) {
@@ -70,13 +76,10 @@ export class UsersService {
   }
 
   async update(id: string, data: {
-    firstName?: string;
-    lastName?: string;
-    phoneNumber?: string;
-    status?: string;
-    bio?: string;
-    category?: string;
-    profileImage?: string;
+    name?: string;
+    amharicName?: string;
+    avatarUrl?: string;
+    twoFactorEnabled?: boolean;
   }) {
     return this.prisma.prisma.user.update({
       where: { id },

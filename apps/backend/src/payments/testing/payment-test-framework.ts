@@ -181,7 +181,7 @@ export class EthiopianPaymentReconciliationService {
   /**
    * Find transaction discrepancies for reconciliation
    */
-  private async findDiscrepancies(): Promise<Discrepancy[]> {
+  private async findDiscrepancies(providerName: string): Promise<Discrepancy[]> {
     // Ethiopian mock discrepancies
     const mockDiscrepancies: Discrepancy[] = [
       {
@@ -202,7 +202,7 @@ export class EthiopianPaymentReconciliationService {
   /**
    * Gather evidence for chargeback dispute resolution
    */
-  private async gatherDisputeEvidence(): Promise<Evidence[]> {
+  private async gatherDisputeEvidence(chargeback: ChargebackDispute): Promise<Evidence[]> {
     // Ethiopian evidence gathering
     return [
       {

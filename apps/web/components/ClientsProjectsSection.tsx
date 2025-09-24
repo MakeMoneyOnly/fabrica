@@ -1,1 +1,0 @@
-[Content of ref/web/src/components/ClientsProjectsSection.tsx]

@@ -6,8 +6,8 @@ import { LocomotiveScrollProvider } from '@/components/ui/LocomotiveScrollContex
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Meqenet Docs',
-  description: 'API Documentation for Meqenet BNPL',
+  title: 'Meqenet - Buy Now, Pay Later for Ethiopia',
+  description: 'Empowering Ethiopian consumers with flexible, interest-free payment options. Shop now and pay later with Meqenet BNPL.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

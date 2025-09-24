@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import MerchantOnboarding from '@/components/MerchantOnboarding';
+import MerchantOnboarding from '@/features/merchant/MerchantOnboarding';
 
 export default function MerchantPortal() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

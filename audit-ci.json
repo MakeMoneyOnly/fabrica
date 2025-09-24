@@ -1,0 +1,21 @@
+{
+  "moderate": true,
+  "allowlist": [
+    "GHSA-776f-qx25-q3cc",  // Example: React vulnerability that's being addressed
+    "GHSA-8x3f-44m8-2w3x"   // Example: Lodash vulnerability with acceptable risk
+  ],
+  "severity": {
+    "moderate": "warn",
+    "high": "fail",
+    "critical": "fail"
+  },
+  "report": {
+    "type": "full",
+    "path": "./security-audit-report.json"
+  },
+  "output-format": "text",
+  "retry": {
+    "count": 3,
+    "delay": 1000
+  }
+}

@@ -1,0 +1,96 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""User model for Ethiopian creator platform"""
+type User {
+  """Unique identifier for the user"""
+  id: ID!
+
+  """User email address"""
+  email: String!
+
+  """User full name"""
+  name: String
+
+  """User name in Amharic for localization"""
+  amharicName: String
+
+  """Profile avatar URL"""
+  avatarUrl: String
+
+  """Two-factor authentication enabled"""
+  twoFactorEnabled: Boolean!
+
+  """User creation timestamp"""
+  createdAt: Timestamp!
+
+  """User last updated timestamp"""
+  updatedAt: Timestamp!
+
+  """Whether user is a creator with a store"""
+  isCreator: Boolean!
+}
+
+"""
+`Date` type as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
+
+type Query {
+  """Get all users with Ethiopian market filters"""
+  users(skip: Float, take: Float): [User!]!
+
+  """Get user by ID for Ethiopian market"""
+  user(id: ID!): User!
+
+  """Get creators (users with stores) for Ethiopian market"""
+  creators(skip: Float, take: Float): [User!]!
+
+  """Get total user count for Ethiopian analytics"""
+  usersCount: Int!
+
+  """Get creator count for Ethiopian market analysis"""
+  creatorsCount(category: String): Int!
+}
+
+type Mutation {
+  """Create user for Ethiopian market"""
+  createUser(input: CreateUserInput!): User!
+
+  """Update user for Ethiopian market"""
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+}
+
+"""Create user input for Ethiopian market"""
+input CreateUserInput {
+  """User email address"""
+  email: String!
+
+  """User password"""
+  password: String!
+
+  """User full name"""
+  name: String
+
+  """User name in Amharic for localization"""
+  amharicName: String
+
+  """Profile avatar URL"""
+  avatarUrl: String
+}
+
+"""Update user input for Ethiopian market"""
+input UpdateUserInput {
+  """User full name"""
+  name: String
+
+  """User name in Amharic for localization"""
+  amharicName: String
+
+  """Profile avatar URL"""
+  avatarUrl: String
+
+  """Two-factor authentication enabled"""
+  twoFactorEnabled: Boolean
+}

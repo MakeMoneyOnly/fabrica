@@ -86,7 +86,7 @@ export class RedisService {
     }
 
     try {
-      return JSON.parse(entry.data);
+      return JSON.parse(entry.data as string);
     } catch (error: unknown) {
       this.logger.error(`Failed to parse session data for Ethiopian user: ${sessionId}`, error);
       return null;
@@ -128,7 +128,7 @@ export class RedisService {
     }
 
     try {
-      return JSON.parse(entry.data);
+      return JSON.parse(entry.data as string);
     } catch (error: any) {
       this.logger.error(`Failed to parse payment data for Ethiopian transaction: ${key}`, error);
       return null;
@@ -163,7 +163,7 @@ export class RedisService {
 
     try {
       // Try to parse as JSON, fallback to string
-      return JSON.parse(entry.data);
+      return JSON.parse(entry.data as string);
     } catch {
       return entry.data;
     }
