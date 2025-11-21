@@ -45,6 +45,8 @@ CLERK_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 Get your Clerk keys from [Clerk Dashboard](https://dashboard.clerk.com/)
 
+**Note:** The `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` warning in Vercel is normal and expected. This key is designed to be public and safe to expose to browsers - it's used in client-side authentication flows.
+
 #### Supabase Database
 
 ```env
