@@ -13,6 +13,9 @@ interface AuthGuardProps {
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
   const hasClerkKey = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
+  // Always call hooks before any conditional returns (Rules of Hooks)
+  const { isLoaded, isSignedIn, user } = useUser()
+
   // If Clerk is not configured, show a message
   if (!hasClerkKey) {
     return (
@@ -28,8 +31,6 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
       </div>
     )
   }
-
-  const { isLoaded, isSignedIn, user } = useUser()
 
   if (!isLoaded) {
     return (
