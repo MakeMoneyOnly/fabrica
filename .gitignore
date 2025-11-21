@@ -195,3 +195,5 @@ playwright-report/
 # Temporary files
 *.tmp
 *.temp
+
+*storybook.log

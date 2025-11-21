@@ -10,21 +10,21 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 
 ### 0.1. Project Management & Documentation
 
-- [ ] Initialize project management board (Linear/GitHub Projects) with these tasks, organized by Epics and Phases.
-- [ ] Set up a shared documentation space (Notion) for internal architecture documents, runbooks, and meeting notes.
-- [ ] Create GitHub Issue and Pull Request templates to enforce quality and consistency.
-- [ ] Create and maintain this `Tasks.md` file as the project bible.
+- [ ] Initialize project management board (Linear/GitHub Projects) with these tasks, organized by Epics and Phases. [Requires GitHub repository setup]
+- [ ] Set up a shared documentation space (Notion) for internal architecture documents, runbooks, and meeting notes. [Requires Notion account setup]
+- [x] Create GitHub Issue and Pull Request templates to enforce quality and consistency.
+- [x] Create and maintain this `Tasks.md` file as the project bible.
 
 ### 0.2. Version Control & Repository
 
-- [ ] Initialize Git repository on GitHub under the Fabrica organization.
-- [ ] Configure `main` (production) and `staging` branches with protection rules (require PR approval, passing CI checks).
-- [ ] Configure `.gitignore`, Prettier, ESLint, and TypeScript for strict code quality.
-- [ ] Configure pre-commit hooks (Husky, lint-staged) to automate formatting, linting, and type-checking.
+- [x] Initialize Git repository on GitHub under the Fabrica organization.
+- [ ] Configure `main` (production) and `staging` branches with protection rules (require PR approval, passing CI checks). [Requires GitHub repository setup]
+- [x] Configure `.gitignore`, Prettier, ESLint, and TypeScript for strict code quality.
+- [x] Configure pre-commit hooks (Husky, lint-staged) to automate formatting, linting, and type-checking.
 
 ### 0.3. Account & Service Setup
 
-- [ ] **Vercel**: Set up a new project linked to the GitHub repo. Configure Production, Staging, and Preview environments.
+- [x] **Vercel**: Set up a new project linked to the GitHub repo. Configure Production, Staging, and Preview environments.
 - [ ] **Supabase**: Create `fabrica-prod` and `fabrica-staging` projects. Enable daily backups and Point-in-Time Recovery (PITR) for production.
 - [ ] **Clerk**: Set up `fabrica-prod` and `fabrica-dev` applications. Customize theme and configure authentication methods (email, phone).
 - [ ] **Telebirr**: Apply for and secure a merchant account. Obtain and securely store sandbox and production API credentials.
@@ -37,18 +37,18 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 
 ### 0.4. Local & CI/CD Environment
 
-- [ ] Set up local Supabase environment using Docker (`supabase init`, `supabase start`).
-- [ ] Create `.env.example` file and document all environment variables. Populate `.env.local` with development credentials.
-- [ ] Write a `CONTRIBUTING.md` guide for local setup, development workflow, and coding standards.
-- [ ] **Storybook**: Install and configure Storybook for isolated UI component development and visual testing.
-- [ ] **CI/CD Pipeline**: Set up initial GitHub Actions workflow for linting, testing, and building on every push.
+- [x] Set up local Supabase environment using Docker (`supabase init`, `supabase start`).
+- [x] Create `.env.example` file and document all environment variables. Populate `.env.local` with development credentials.
+- [x] Write a `CONTRIBUTING.md` guide for local setup, development workflow, and coding standards.
+- [x] **Storybook**: Install and configure Storybook for isolated UI component development and visual testing.
+- [x] **CI/CD Pipeline**: Set up initial GitHub Actions workflow for linting, testing, and building on every push.
 
 ### 0.5. Project Scaffolding
 
-- [ ] Initialize Next.js 14 project (`npx create-next-app`).
-- [ ] Implement the directory structure from `2. System Architecture.md`.
-- [ ] Install and configure all core dependencies as per `3. Tech Stack.md`.
-- [ ] Generate initial TypeScript types from the database schema (`npx supabase gen types`).
+- [x] Initialize Next.js 14 project (`npx create-next-app`).
+- [x] Implement the directory structure from `2. System Architecture.md`.
+- [x] Install and configure all core dependencies as per `3. Tech Stack.md`.
+- [x] Generate initial TypeScript types from the database schema (`npx supabase gen types`).
 
 ---
 
