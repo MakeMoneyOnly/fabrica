@@ -197,3 +197,6 @@ playwright-report/
 *.temp
 
 *storybook.log
+
+# clerk configuration (can include secrets)
+/.clerk/

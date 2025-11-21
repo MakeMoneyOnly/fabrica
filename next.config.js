@@ -2,19 +2,26 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['supabase.co', 'res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year
   },
   experimental: {
-    optimizeCss: true,
     scrollRestoration: true,
   },
   compress: true,
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 }
 
-module.exports = nextConfig
+export default nextConfig
