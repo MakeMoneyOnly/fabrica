@@ -1,10 +1,38 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { AuthGuard } from '@/components/auth'
 
 export default function Home() {
+  const [envCheck, setEnvCheck] = useState<string>('Checking environment...')
+
+  useEffect(() => {
+    // Check if Clerk environment variables are available
+    const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    const status = []
+    if (clerkKey) status.push('✅ Clerk key found')
+    else status.push('❌ Clerk key missing')
+
+    if (supabaseUrl) status.push('✅ Supabase URL found')
+    else status.push('❌ Supabase URL missing')
+
+    if (supabaseKey) status.push('✅ Supabase key found')
+    else status.push('❌ Supabase key missing')
+
+    setEnvCheck(status.join('\n'))
+  }, [])
+
   return (
     <AuthGuard>
+      {/* Environment check */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-semibold text-yellow-800 mb-2">Environment Check</h2>
+        <pre className="text-sm text-yellow-700 whitespace-pre-line">{envCheck}</pre>
+      </div>
+
       {/* Dashboard content for authenticated users */}
       <div className="space-y-8">
         <div className="bg-white rounded-lg shadow p-6">
