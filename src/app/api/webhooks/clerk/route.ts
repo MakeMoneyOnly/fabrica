@@ -1,6 +1,5 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
-import { NextResponse } from 'next/server'
 import { WebhookEvent } from '@clerk/nextjs/server'
 
 export async function POST(req: Request) {
@@ -51,38 +50,42 @@ export async function POST(req: Request) {
   const { id } = evt.data
   const eventType = evt.type
 
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
-  console.log('Webhook body:', body)
+  // Log webhook details for debugging and audit purposes
+  // Using console.warn to make these visible in production logs
+  console.warn(`Webhook received: ID=${id}, Type=${eventType}`)
+  console.warn('Webhook payload:', body)
 
   // Handle different webhook events
+  // TODO: Implement actual database operations for each event type
   switch (eventType) {
     case 'user.created':
-      // Handle user creation
-      console.log('User created:', evt.data)
+      // Handle user creation - sync to database
+      console.warn('Processing user.created event:', evt.data)
       break
 
     case 'user.updated':
-      // Handle user updates
-      console.log('User updated:', evt.data)
+      // Handle user updates - update database record
+      console.warn('Processing user.updated event:', evt.data)
       break
 
     case 'user.deleted':
-      // Handle user deletion
-      console.log('User deleted:', evt.data)
+      // Handle user deletion - soft delete or remove from database
+      console.warn('Processing user.deleted event:', evt.data)
       break
 
     case 'session.created':
-      // Handle session creation
-      console.log('Session created:', evt.data)
+      // Handle session creation - track user activity
+      console.warn('Processing session.created event:', evt.data)
       break
 
     case 'session.ended':
-      // Handle session ending
-      console.log('Session ended:', evt.data)
+      // Handle session ending - update session records
+      console.warn('Processing session.ended event:', evt.data)
       break
 
     default:
-      console.log(`Unhandled event type: ${eventType}`)
+      // Log unhandled events for future implementation
+      console.warn(`Unhandled webhook event type: ${eventType}`)
   }
 
   return new Response('', { status: 200 })
