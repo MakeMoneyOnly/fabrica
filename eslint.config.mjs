@@ -6,7 +6,7 @@ const __dirname = dirname(__filename)
 
 /**
  * ESLint flat config for Fabrica Platform
- * 
+ *
  * Uses ESLint v9 native flat config format to avoid circular reference issues
  * with FlatCompat utility. This configuration:
  * - Supports Next.js/React development
@@ -31,7 +31,7 @@ const eslintConfig = [
       'tsconfig.tsbuildinfo',
     ],
   },
-  
+
   // Base configuration for all files
   {
     files: ['**/*.{js,mjs,cjs,jsx,ts,tsx}'],
@@ -50,15 +50,15 @@ const eslintConfig = [
       'no-unused-vars': 'off', // Handled by TypeScript
       'prefer-const': 'error',
       'no-var': 'error',
-      
+
       // Best practices
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
+      eqeqeq: ['error', 'always'],
+      curly: ['error', 'all'],
       'no-eval': 'error',
       'no-implied-eval': 'error',
     },
   },
-  
+
   // TypeScript-specific configuration
   {
     files: ['**/*.{ts,tsx}'],
@@ -76,7 +76,7 @@ const eslintConfig = [
       // TypeScript-specific rules
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { 
+        {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
         },
@@ -87,7 +87,7 @@ const eslintConfig = [
       '@typescript-eslint/no-non-null-assertion': 'warn',
     },
   },
-  
+
   // React/Next.js-specific configuration
   {
     files: ['**/*.{jsx,tsx}'],
@@ -101,7 +101,7 @@ const eslintConfig = [
       '@next/next/no-img-element': 'warn',
       '@next/next/no-sync-scripts': 'error',
       '@next/next/no-unwanted-polyfillio': 'error',
-      
+
       // React best practices
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',

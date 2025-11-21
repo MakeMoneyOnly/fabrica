@@ -22,15 +22,12 @@ export default {
           red: '#DA121A',
           yellow: '#FCDD09',
           green: '#078930',
-        }
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
-  plugins: [
-    forms,
-    typography,
-  ],
+  plugins: [forms, typography],
 }
