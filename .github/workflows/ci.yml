@@ -24,10 +24,7 @@ jobs:
         run: npm ci
 
       - name: Run linting
-        run: |
-          pwd
-          ls -la
-          npm run lint
+        run: npm run lint
 
       - name: Check formatting
         run: npm run format:check
