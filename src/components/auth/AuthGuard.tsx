@@ -11,6 +11,24 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
+  const hasClerkKey = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+  // If Clerk is not configured, show a message
+  if (!hasClerkKey) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
+        <h1 className="text-2xl font-bold text-gray-900">Authentication Not Configured</h1>
+        <p className="text-gray-600 text-center max-w-md">
+          Clerk authentication is not set up yet. Please configure your Clerk keys to enable user
+          authentication and access control.
+        </p>
+        <p className="text-sm text-gray-500">
+          Set the NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY environment variable to enable authentication.
+        </p>
+      </div>
+    )
+  }
+
   const { isLoaded, isSignedIn, user } = useUser()
 
   if (!isLoaded) {
