@@ -10,7 +10,7 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 
 ### 0.1. Project Management & Documentation
 
-- [ ] Initialize project management board (Linear/GitHub Projects) with these tasks, organized by Epics and Phases. [Requires GitHub repository setup]
+- [x] Initialize project management board (Linear/GitHub Projects) with these tasks, organized by Epics and Phases. [Requires GitHub repository setup]
 - [ ] Set up a shared documentation space (Notion) for internal architecture documents, runbooks, and meeting notes. [Requires Notion account setup]
 - [x] Create GitHub Issue and Pull Request templates to enforce quality and consistency.
 - [x] Create and maintain this `Tasks.md` file as the project bible.
@@ -18,14 +18,14 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 ### 0.2. Version Control & Repository
 
 - [x] Initialize Git repository on GitHub under the Fabrica organization.
-- [ ] Configure `main` (production) and `staging` branches with protection rules (require PR approval, passing CI checks). [Requires GitHub repository setup]
+- [x] Configure `main` (production) and `staging` branches with protection rules (require PR approval, passing CI checks). [Requires GitHub repository setup]
 - [x] Configure `.gitignore`, Prettier, ESLint, and TypeScript for strict code quality.
 - [x] Configure pre-commit hooks (Husky, lint-staged) to automate formatting, linting, and type-checking.
 
 ### 0.3. Account & Service Setup
 
 - [x] **Vercel**: Set up a new project linked to the GitHub repo. Configure Production, Staging, and Preview environments.
-- [ ] **Supabase**: Create `fabrica-prod` and `fabrica-staging` projects. Enable daily backups and Point-in-Time Recovery (PITR) for production.
+- [x] **Supabase**: Create `fabrica-prod` and `fabrica-staging` projects. Enable daily backups and Point-in-Time Recovery (PITR) for production.
 - [ ] **Clerk**: Set up `fabrica-prod` and `fabrica-dev` applications. Customize theme and configure authentication methods (email, phone).
 - [ ] **Telebirr**: Apply for and secure a merchant account. Obtain and securely store sandbox and production API credentials.
 - [ ] **Resend**: Sign up and obtain API key. Configure with `fabrica.et` domain and necessary DNS records (DKIM, SPF).
