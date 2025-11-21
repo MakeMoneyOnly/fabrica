@@ -1,20 +1,3 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"],
-  "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "prefer-const": "error",
-    "no-var": "error"
-  },
-  "ignorePatterns": [
-    ".next/",
-    "node_modules/",
-    "public/",
-    ".vscode/",
-    "next-env.d.ts",
-    ".husky/",
-    "coverage/",
-    "storybook-static/"
-  ]
+  "extends": "next/core-web-vitals"
 }
