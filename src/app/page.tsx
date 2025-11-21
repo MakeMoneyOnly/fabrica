@@ -1,170 +1,59 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { AuthGuard } from '@/components/auth'
-
 export default function Home() {
-  const [envCheck, setEnvCheck] = useState<string>('Checking environment...')
-
-  useEffect(() => {
-    // Check if Clerk environment variables are available
-    const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    const status = []
-    if (clerkKey) status.push('✅ Clerk key found')
-    else status.push('❌ Clerk key missing')
-
-    if (supabaseUrl) status.push('✅ Supabase URL found')
-    else status.push('❌ Supabase URL missing')
-
-    if (supabaseKey) status.push('✅ Supabase key found')
-    else status.push('❌ Supabase key missing')
-
-    setEnvCheck(status.join('\n'))
-  }, [])
-
   return (
-    <AuthGuard>
-      {/* Environment check */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-        <h2 className="text-lg font-semibold text-yellow-800 mb-2">Environment Check</h2>
-        <pre className="text-sm text-yellow-700 whitespace-pre-line">{envCheck}</pre>
-      </div>
-
-      {/* Dashboard content for authenticated users */}
-      <div className="space-y-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Welcome to Your Creator Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Start building your creator economy platform. Manage your digital products, bookings,
-            and analytics all in one place.
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Fabrica is Working! 🎉</h1>
+          <p className="text-gray-600 mb-6">
+            Your creator economy platform is successfully deployed.
           </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          {/* Environment Variables Check */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Environment Status:</h3>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span>Clerk Key:</span>
+                <span
+                  className={
+                    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-                  />
-                </svg>
+                  {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? '✅ Found' : '❌ Missing'}
+                </span>
               </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Digital Products</h3>
-                <p className="text-gray-500 text-sm">Manage your downloads and courses</p>
+              <div className="flex justify-between">
+                <span>Supabase URL:</span>
+                <span
+                  className={
+                    process.env.NEXT_PUBLIC_SUPABASE_URL ? 'text-green-600' : 'text-red-600'
+                  }
+                >
+                  {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Found' : '❌ Missing'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Supabase Key:</span>
+                <span
+                  className={
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'text-green-600' : 'text-red-600'
+                  }
+                >
+                  {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Found' : '❌ Missing'}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11M9 11h6"
-                  />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">1-on-1 Bookings</h3>
-                <p className="text-gray-500 text-sm">Schedule coaching sessions</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">External Links</h3>
-                <p className="text-gray-500 text-sm">Share affiliate and social links</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-orange-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-semibold text-gray-900">Analytics</h3>
-                <p className="text-gray-500 text-sm">Track your business growth</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h2>
           <div className="space-y-3">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-              <p className="text-gray-600">Set up your creator profile and branding</p>
-            </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
-              <p className="text-gray-600">Create your first digital product or booking</p>
-            </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-purple-600 rounded-full mr-3"></div>
-              <p className="text-gray-600">Customize your storefront and payment settings</p>
-            </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-orange-600 rounded-full mr-3"></div>
-              <p className="text-gray-600">Share your store link and start monetizing</p>
-            </div>
+            <p className="text-sm text-gray-500">
+              Next step: Enable authentication by restoring the Clerk setup
+            </p>
           </div>
         </div>
       </div>
-    </AuthGuard>
+    </div>
   )
 }
