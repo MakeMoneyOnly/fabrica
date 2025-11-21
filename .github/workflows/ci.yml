@@ -24,7 +24,8 @@ jobs:
         run: npm ci
 
       - name: Run linting
-        run: npm run lint
+        run: npx next lint .
+        continue-on-error: false
 
       - name: Check formatting
         run: npm run format:check

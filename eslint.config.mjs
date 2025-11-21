@@ -1,10 +1,9 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
-
-import { defineConfig } from 'eslint/config'
 import nextPlugin from '@next/eslint-plugin-next'
+import typescriptEslint from '@typescript-eslint/eslint-plugin'
 
-export default defineConfig([
+export default [
   {
     name: 'project/ignores',
     ignores: [
@@ -30,13 +29,13 @@ export default defineConfig([
       },
     },
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      '@typescript-eslint': typescriptEslint,
       '@next/next': nextPlugin,
     },
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,
-      ...require('@typescript-eslint/eslint-plugin').configs.recommended.rules,
+      ...typescriptEslint.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
