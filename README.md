@@ -57,6 +57,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 
 Get your Supabase keys from [Supabase Dashboard](https://supabase.com/dashboard)
 
+**Note:** The `NEXT_PUBLIC_SUPABASE_*` warnings in Vercel are normal and expected. These keys are designed to be public and safe to expose to browsers - they're used in client-side database operations with Row Level Security (RLS) enabled.
+
 4. Run the development server:
 
 ```bash
