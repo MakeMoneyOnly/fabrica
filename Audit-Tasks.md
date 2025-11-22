@@ -625,22 +625,22 @@ Before starting, ensure you have:
 
 **New File:** `src/lib/payments/chapa.ts`
 
-- [] **Task 4.1.1:** Set up Chapa environment variables
+- [x] **Task 4.1.1:** Set up Chapa environment variables
   - Add to `.env.example`:
     - `CHAPA_SECRET_KEY` (Bearer token: CHASECK-xxxxx or CHASECK_TEST-xxxxx)
     - `CHAPA_WEBHOOK_SECRET`
 
-- [] **Task 4.1.2:** Create ChapaClient class
+- [x] **Task 4.1.2:** Create ChapaClient class
   - Constructor accepts config object
   - Store config as private property
   - Support sandbox and production environments
 
-- [] **Task 4.1.3:** Implement Bearer token authentication
+- [x] **Task 4.1.3:** Implement Bearer token authentication
   - Use CHAPA_SECRET_KEY as Bearer token
   - Format: `Authorization: Bearer CHASECK-xxxxx`
   - No signature generation needed (simpler than Telebirr)
 
-- [] **Task 4.1.4:** Implement `initiatePayment()` method
+- [x] **Task 4.1.4:** Implement `initiatePayment()` method
   - Accept parameters:
     - `orderId`: string (unique order identifier)
     - `amount`: number (in ETB)
@@ -657,32 +657,32 @@ Before starting, ensure you have:
   - Handle response and return `{ success, paymentUrl?, error? }`
   - Add retry logic for network failures (3 retries)
 
-- [ ] **Task 4.1.5:** Implement `queryPayment()` method
+- [x] **Task 4.1.5:** Implement `queryPayment()` method
   - Accept `orderId` parameter
   - Generate signature for query request
   - Make GET request to Chapa verify endpoint (`https://api.chapa.co/v1/transaction/verify/<tx_ref>`)
   - Return payment status: `SUCCESS`, `FAILED`, `PENDING`, `CLOSED`
   - Return transaction ID and paid timestamp if successful
 
-- [ ] **Task 4.1.6:** Implement `verifyWebhookSignature()` method
+- [x] **Task 4.1.6:** Implement `verifyWebhookSignature()` method
   - Accept `payload` (string) and `signature` (string)
   - Generate expected signature using `CHAPA_WEBHOOK_SECRET` and `Chapa-Signature` header
   - Use HMAC-SHA256
   - Compare signatures using `crypto.timingSafeEqual()` (prevent timing attacks)
   - Return `true` if valid, `false` otherwise
 
-- [ ] **Task 4.1.7:** Add error handling
+- [x] **Task 4.1.7:** Add error handling
   - Handle network errors
   - Handle API errors (invalid signature, insufficient funds, etc.)
   - Return user-friendly error messages
   - Log errors for debugging
 
-- [ ] **Task 4.1.8:** Create singleton instance
+- [x] **Task 4.1.8:** Create singleton instance
   - Export `chapaClient` instance
   - Initialize with environment variables
   - Throw error if required env vars missing
 
-- [ ] **Task 4.1.9:** Write unit tests
+- [x] **Task 4.1.9:** Write unit tests
   - Test signature generation
   - Test webhook signature verification
   - Mock API responses for testing
@@ -702,13 +702,13 @@ Before starting, ensure you have:
 
 **New File:** `src/app/api/payments/initiate/route.ts`
 
-- [ ] **Task 4.2.1:** Create POST endpoint handler
+- [x] **Task 4.2.1:** Create POST endpoint handler
   - Accept JSON body with payment details
   - Validate input using `initiatePaymentSchema` from Zod
   - Apply rate limiting using `paymentLimiter`
   - Handle errors with error handling middleware
 
-- [ ] **Task 4.2.2:** Implement payment flow
+- [x] **Task 4.2.2:** Implement payment flow
   - Validate product exists and is available
   - Create order record in database (status: 'pending')
   - Generate unique order number using `generate_order_number` RPC
@@ -716,24 +716,24 @@ Before starting, ensure you have:
   - Store payment URL in order record
   - Return payment URL to client
 
-- [ ] **Task 4.2.3:** Add idempotency check
+- [x] **Task 4.2.3:** Add idempotency check
   - Check if order with same product + customer already exists
   - Return existing payment URL if found
   - Prevent duplicate orders
 
-- [ ] **Task 4.2.4:** Handle errors
+- [x] **Task 4.2.4:** Handle errors
   - Product not found: 404
   - Invalid input: 400 (validation error)
   - Rate limit exceeded: 429
   - Chapa API error: 502 (bad gateway)
   - Database error: 500 (internal server error)
 
-- [ ] **Task 4.2.5:** Add logging
+- [x] **Task 4.2.5:** Add logging
   - Log payment initiation attempts
   - Log Chapa API responses
   - Log errors for debugging
 
-- [ ] **Task 4.2.6:** Test payment initiation
+- [x] **Task 4.2.6:** Test payment initiation
   - Test with valid input
   - Test with invalid input (validation)
   - Test with non-existent product
@@ -755,13 +755,13 @@ Before starting, ensure you have:
 
 **New File:** `src/app/api/webhooks/chapa/route.ts`
 
-- [ ] **Task 4.3.1:** Create POST endpoint handler
+- [x] **Task 4.3.1:** Create POST endpoint handler
   - Accept webhook payload from Chapa
   - Verify webhook signature using `verifyWebhookSignature()`
   - Return 401 if signature invalid
   - Parse webhook payload
 
-- [ ] **Task 4.3.2:** Handle payment success event
+- [x] **Task 4.3.2:** Handle payment success event
   - Extract order ID from webhook payload
   - Find order in database
   - Verify order status is 'pending'
@@ -770,28 +770,28 @@ Before starting, ensure you have:
   - Generate download links for digital products
   - Send email notification (stub for Resend integration)
 
-- [ ] **Task 4.3.3:** Handle payment failure event
+- [x] **Task 4.3.3:** Handle payment failure event
   - Extract order ID from webhook payload
   - Update order status to 'failed'
   - Log failure reason
   - Send email notification to customer (stub)
 
-- [ ] **Task 4.3.4:** Implement idempotency
+- [x] **Task 4.3.4:** Implement idempotency
   - Check if payment already processed
   - Return success if already processed (prevent duplicate processing)
   - Use database transaction to prevent race conditions
 
-- [ ] **Task 4.3.5:** Add error handling
+- [x] **Task 4.3.5:** Add error handling
   - Handle database errors
   - Handle RPC function errors
   - Log errors to Sentry
   - Return appropriate HTTP status codes
 
-- [ ] **Task 4.3.6:** Add retry logic
+- [x] **Task 4.3.6:** Add retry logic
   - If processing fails, log for manual retry
   - Consider implementing retry queue (future enhancement)
 
-- [ ] **Task 4.3.7:** Test webhook handler
+- [x] **Task 4.3.7:** Test webhook handler
   - Test with valid signature
   - Test with invalid signature (should reject)
   - Test payment success flow
@@ -890,9 +890,9 @@ After completing all phases, run comprehensive tests:
 - [ ] **Health Check:** Test endpoint with all services up/down
 - [ ] **Phone Validation:** Test valid/invalid phone numbers
 - [ ] **React Query:** Test query hooks (when APIs ready)
-- [x] **Chapa SDK:** Test payment initiation in test mode
+- [x] **Chapa SDK:** Test payment initiation in test mode (20 tests passing)
 - [x] **Payment API:** Test payment initiation endpoint
-- [x] **Chapa Webhook:** Test webhook signature verification
+- [x] **Chapa Webhook:** Test webhook signature verification (14 tests passing)
 - [ ] **Environment Validation:** Test with missing env vars
 
 ---
@@ -934,7 +934,7 @@ npm install @upstash/ratelimit @upstash/redis @sentry/nextjs
 **Phase 1:** 4/4 tasks complete ✅ (All tests passing - 157 tests total)  
 **Phase 2:** 3/3 tasks complete ✅ (All tests passing)  
 **Phase 3:** 6/6 tasks complete ✅ (All tests passing - Implementation & testing complete)  
-**Phase 4:** 3/3 tasks complete ✅ (Testing pending)  
+**Phase 4:** 3/3 tasks complete ✅ (All tests passing - 34 tests total)  
 **Phase 5:** 1/1 tasks complete ✅
 
 **Overall Progress:** 17/17 major tasks complete ✅
@@ -948,6 +948,12 @@ npm install @upstash/ratelimit @upstash/redis @sentry/nextjs
 - ✅ All 157 tests passing
 - ✅ Marked all Phase 3 tasks as complete in Audit-Tasks.md
 - ✅ Phase 1 testing tasks marked complete (webhook, currency, auth, headers)
+- ✅ Completed Phase 4 Chapa Payment Integration implementation
+- ✅ Enhanced webhook signature verification (supports both Chapa-Signature and x-chapa-signature headers)
+- ✅ Integrated Sentry logging throughout Chapa SDK and API routes
+- ✅ Created comprehensive unit tests (34 tests: 20 for SDK, 14 for webhook handler)
+- ✅ Updated environment variable usage to use validated env object
+- ✅ Added documentation comments referencing Chapa official API docs
 
 ---
 

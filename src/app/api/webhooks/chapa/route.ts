@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { UnauthorizedError } from '@/lib/api/errors'
 import { withErrorHandling } from '@/lib/api/middleware'
 import { successResponse } from '@/lib/api/response'
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * POST /api/webhooks/chapa
@@ -12,8 +13,9 @@ import { successResponse } from '@/lib/api/response'
  */
 async function handler(req: NextRequest): Promise<NextResponse> {
   // Get webhook signature from header
-  // Chapa uses 'Chapa-Signature' header (per official documentation)
-  const signature = req.headers.get('Chapa-Signature')
+  // Chapa uses 'Chapa-Signature' or 'x-chapa-signature' header (per official documentation)
+  // Check both header names for compatibility
+  const signature = req.headers.get('Chapa-Signature') || req.headers.get('x-chapa-signature')
   if (!signature) {
     throw new UnauthorizedError('Missing webhook signature')
   }
@@ -48,13 +50,22 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       .single()
 
     if (orderError || !order) {
-      console.error('Order not found for webhook:', trx_ref)
+      Sentry.captureMessage('Order not found for Chapa webhook', {
+        level: 'warning',
+        tags: { component: 'webhook', operation: 'chapa', event: 'order_not_found' },
+        extra: { trx_ref },
+      })
       return successResponse({ message: 'Order not found' }) // Return 200 to prevent retries
     }
 
     // Check if payment already processed (idempotency)
     if (order.payment_status === 'completed') {
-      console.warn('Payment already processed for order:', trx_ref)
+      Sentry.addBreadcrumb({
+        category: 'webhook',
+        message: 'Duplicate webhook received for completed order',
+        level: 'info',
+        data: { orderId: trx_ref },
+      })
       return successResponse({ message: 'Payment already processed' })
     }
 
@@ -69,7 +80,15 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       })
 
       if (paymentError) {
-        console.error('Failed to process payment:', paymentError)
+        Sentry.captureException(paymentError, {
+          tags: { component: 'webhook', operation: 'chapa', event: 'payment_processing_failed' },
+          extra: {
+            orderId: order.id,
+            trx_ref,
+            ref_id,
+            status,
+          },
+        })
         // Don't throw - return success to prevent webhook retries
         // Log for manual investigation
         return successResponse({ message: 'Payment processing failed, logged for investigation' })
@@ -96,7 +115,14 @@ async function handler(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     // Log error but return success to prevent webhook retries
     // Errors will be investigated manually
-    console.error('Error processing Chapa webhook:', error)
+    Sentry.captureException(error, {
+      tags: { component: 'webhook', operation: 'chapa', event: 'webhook_processing_error' },
+      extra: {
+        trx_ref,
+        ref_id,
+        status,
+      },
+    })
     return successResponse({ message: 'Webhook received, error logged for investigation' })
   }
 }

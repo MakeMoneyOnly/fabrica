@@ -8,6 +8,8 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { NotFoundError, BadGatewayError } from '@/lib/api/errors'
 import { handleApiError, withErrorHandling } from '@/lib/api/middleware'
 import { successResponse } from '@/lib/api/response'
+import * as Sentry from '@sentry/nextjs'
+import { env } from '@/lib/env'
 
 /**
  * POST /api/payments/initiate
@@ -105,7 +107,21 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
     // Initiate payment with Chapa
     const chapaClient = getChapaClient()
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+    // Log payment initiation attempt
+    Sentry.addBreadcrumb({
+      category: 'payment',
+      message: 'Initiating Chapa payment',
+      level: 'info',
+      data: {
+        orderId: order.id,
+        productId: product.id,
+        amount: product.price || 0,
+        customerEmail,
+      },
+    })
+
     const paymentResult = await chapaClient.initiatePayment({
       orderId: order.id,
       amount: product.price || 0,
@@ -118,10 +134,34 @@ async function handler(req: NextRequest): Promise<NextResponse> {
     })
 
     if (!paymentResult.success || !paymentResult.paymentUrl) {
+      // Log payment initiation failure
+      Sentry.captureMessage('Chapa payment initiation failed', {
+        level: 'error',
+        tags: { component: 'payment-api', operation: 'initiatePayment' },
+        extra: {
+          orderId: order.id,
+          productId: product.id,
+          amount: product.price || 0,
+          chapaError: paymentResult.error,
+        },
+      })
+
       // Update order status to failed
       await supabase.from('orders').update({ payment_status: 'failed' }).eq('id', order.id)
       throw new BadGatewayError(paymentResult.error || 'Payment initiation failed')
     }
+
+    // Log successful payment initiation (without sensitive data)
+    Sentry.addBreadcrumb({
+      category: 'payment',
+      message: 'Chapa payment initiated successfully',
+      level: 'info',
+      data: {
+        orderId: order.id,
+        transactionId: paymentResult.transactionId,
+        hasPaymentUrl: !!paymentResult.paymentUrl,
+      },
+    })
 
     // Update order with payment URL in metadata
     await supabase
