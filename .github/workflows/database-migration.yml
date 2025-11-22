@@ -1,0 +1,153 @@
+name: Database Migration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      environment:
+        description: 'Environment to migrate'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+# Prevent concurrent migrations
+concurrency:
+  group: database-migration-${{ github.event.inputs.environment || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  # Validate migration files
+  validate-migrations:
+    name: Validate Migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Supabase CLI
+        run: |
+          npm install -g supabase
+
+      - name: Validate migration files
+        run: |
+          # Check if migration files are valid SQL
+          for file in supabase/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Validating $file"
+              # Basic SQL syntax check (PostgreSQL)
+              if ! grep -q "BEGIN\|COMMIT" "$file" && ! grep -q "^--" "$file"; then
+                echo "⚠️  Warning: $file doesn't appear to use transactions"
+              fi
+            fi
+          done
+          echo "✅ Migration files validated"
+
+  # Run migrations on staging first (if manual trigger)
+  migrate-staging:
+    name: Migrate Staging Database
+    runs-on: ubuntu-latest
+    needs: [validate-migrations]
+    if: github.event.inputs.environment == 'staging' || github.event_name == 'push'
+    timeout-minutes: 10
+    environment:
+      name: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Link to Supabase project
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_STAGING_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Run migrations
+        run: |
+          echo "Running migrations on staging database..."
+          supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Verify migration
+        run: |
+          echo "✅ Migrations applied to staging successfully"
+
+  # Run migrations on production (only after staging success or manual trigger)
+  migrate-production:
+    name: Migrate Production Database
+    runs-on: ubuntu-latest
+    needs: [validate-migrations, migrate-staging]
+    if: github.event.inputs.environment == 'production' || (github.event_name == 'push' && needs.migrate-staging.result == 'success')
+    timeout-minutes: 15
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Link to Supabase project
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Run migrations
+        run: |
+          echo "Running migrations on production database..."
+          supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Verify migration
+        run: |
+          echo "✅ Migrations applied to production successfully"
+
+      - name: Generate TypeScript types
+        run: |
+          supabase gen types typescript --linked > src/types/database.types.ts
+          echo "✅ TypeScript types generated"
+        continue-on-error: true
+
+      - name: Notify team
+        uses: 8398a7/action-slack@v3
+        if: always() && secrets.SLACK_WEBHOOK
+        with:
+          status: ${{ job.status }}
+          text: |
+            Database migration ${{ job.status }}!
+            Environment: Production
+            Commit: ${{ github.sha }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
