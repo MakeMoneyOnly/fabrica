@@ -155,7 +155,7 @@ CREATE TABLE orders (
     -- Payment info
     amount DECIMAL(10,2) NOT NULL,
     currency TEXT DEFAULT 'ETB',
-    payment_provider TEXT NOT NULL, -- telebirr, chapa
+    payment_provider TEXT NOT NULL, -- chapa (primary), telebirr (via Chapa)
     payment_provider_id TEXT, -- Transaction ID from provider
     payment_status TEXT DEFAULT 'pending', -- pending, completed, failed, refunded
 

@@ -122,13 +122,10 @@ curl http://localhost:3000/api/test-sentry
 - `CLERK_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (optional but recommended)
 
-**Telebirr:**
+**Chapa:**
 
-- `TELEBIRR_APP_ID`
-- `TELEBIRR_APP_KEY`
-- `TELEBIRR_MERCHANT_CODE`
-- `TELEBIRR_WEBHOOK_SECRET`
-- `TELEBIRR_API_URL`
+- `CHAPA_SECRET_KEY` (Bearer token: CHASECK-xxxxx or CHASECK_TEST-xxxxx)
+- `CHAPA_WEBHOOK_SECRET`
 
 ### Optional Variables
 
@@ -203,7 +200,7 @@ The environment validation script (`npm run verify:env`) will:
 3. **Configure services:**
    - Set up Supabase database
    - Configure Clerk webhooks
-   - Set up Telebirr sandbox
+   - Set up Chapa test mode
    - Configure Upstash Redis (optional)
    - Set up Sentry (optional)
 

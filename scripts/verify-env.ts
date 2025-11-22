@@ -56,12 +56,12 @@ const envSchema = z.object({
   CLERK_SECRET_KEY: z.string().min(1, 'Clerk secret key is required'),
   CLERK_WEBHOOK_SECRET: z.string().min(1, 'Clerk webhook secret is required'),
 
-  // Telebirr
-  TELEBIRR_APP_ID: z.string().min(1, 'Telebirr app ID is required'),
-  TELEBIRR_APP_KEY: z.string().min(1, 'Telebirr app key is required'),
-  TELEBIRR_MERCHANT_CODE: z.string().min(1, 'Telebirr merchant code is required'),
-  TELEBIRR_WEBHOOK_SECRET: z.string().min(1, 'Telebirr webhook secret is required'),
-  TELEBIRR_API_URL: z.string().url('Invalid Telebirr API URL'),
+  // Chapa Payment Integration
+  // Documentation: https://developer.chapa.co/
+  CHAPA_SECRET_KEY: z
+    .string()
+    .min(1, 'Chapa secret key is required (format: CHASECK-xxxxx or CHASECK_TEST-xxxxx)'),
+  CHAPA_WEBHOOK_SECRET: z.string().min(1, 'Chapa webhook secret is required'),
 
   // Upstash Redis (optional)
   UPSTASH_REDIS_REST_URL: z.string().url('Invalid Upstash Redis URL').optional(),
@@ -129,11 +129,8 @@ function verifyEnv() {
   logSuccess('SUPABASE_SERVICE_ROLE_KEY')
   logSuccess('CLERK_SECRET_KEY')
   logSuccess('CLERK_WEBHOOK_SECRET')
-  logSuccess('TELEBIRR_APP_ID')
-  logSuccess('TELEBIRR_APP_KEY')
-  logSuccess('TELEBIRR_MERCHANT_CODE')
-  logSuccess('TELEBIRR_WEBHOOK_SECRET')
-  logSuccess('TELEBIRR_API_URL')
+  logSuccess('CHAPA_SECRET_KEY')
+  logSuccess('CHAPA_WEBHOOK_SECRET')
 
   if (validated.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     logSuccess('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY')

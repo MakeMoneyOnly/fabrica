@@ -38,7 +38,7 @@
 - **Details**:
   - Order status updated: `pending` → `completed`
   - `paid_at` timestamp set: 2025-11-22 12:24:31
-  - Payment provider ID stored: `telebirr_txn_fixed_123`
+  - Payment provider ID stored: `chapa_txn_fixed_123`
   - Product statistics updated:
     - `sales_count`: 0 → 1
     - `revenue_total`: 0.00 → 299.99
@@ -97,7 +97,7 @@
   - Customer: Sara Alemayehu
   - Amount: 299.99 ETB
   - Status: completed
-  - Payment Provider: telebirr
+  - Payment Provider: chapa
   - Download link created
 
 ### Referrals (1)

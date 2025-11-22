@@ -42,7 +42,7 @@ See [ENV_SETUP.md](./ENV_SETUP.md) for detailed instructions on setting up:
 
 - Supabase database credentials
 - Clerk authentication keys
-- Telebirr payment integration
+- Chapa payment integration
 - Upstash Redis (optional)
 - Sentry error tracking (optional)
 
@@ -94,16 +94,16 @@ npm run db:seed
 - Use [ngrok](https://ngrok.com/) to expose localhost
 - Or use Clerk's webhook testing tool
 
-### 5. Telebirr Webhook Setup
+### 5. Chapa Webhook Setup
 
-1. Contact Telebirr support for webhook configuration
-2. Set webhook URL: `https://your-domain.com/api/webhooks/telebirr`
-3. Copy webhook secret to `.env.local` as `TELEBIRR_WEBHOOK_SECRET`
+1. Configure webhook in Chapa Dashboard
+2. Set webhook URL: `https://your-domain.com/api/webhooks/chapa`
+3. Copy webhook secret to `.env.local` as `CHAPA_WEBHOOK_SECRET`
 
 **For local testing:**
 
 - Use ngrok to expose localhost
-- Test with Telebirr sandbox
+- Test with Chapa test mode
 
 ## Testing Procedures
 
@@ -209,10 +209,10 @@ Follow the [TESTING_GUIDE.md](./TESTING_GUIDE.md) for detailed phase-by-phase te
    - Phone validation
    - React Query
 
-4. **Phase 4: Telebirr Payment Integration**
-   - Telebirr SDK
+4. **Phase 4: Chapa Payment Integration**
+   - Chapa SDK
    - Payment initiation API
-   - Telebirr webhook
+   - Chapa webhook
 
 5. **Phase 5: Environment Validation**
    - Environment variable validation
@@ -295,15 +295,15 @@ Use [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) for systematic verification:
 
 ### Payment Integration
 
-**Issue:** "Telebirr payment not working"
+**Issue:** "Chapa payment not working"
 
 **Solution:**
 
-1. Verify all Telebirr env vars are set
-2. Check Telebirr sandbox is accessible
+1. Verify all Chapa env vars are set
+2. Check Chapa test mode is accessible
 3. Verify webhook URL is publicly accessible
-4. Check Telebirr dashboard for errors
-5. Review Telebirr API documentation
+4. Check Chapa dashboard for errors
+5. Review Chapa API documentation: https://developer.chapa.co/
 
 ## Production Checklist
 
@@ -312,7 +312,7 @@ Before deploying to production:
 - [ ] All environment variables set in deployment platform
 - [ ] Production Supabase project configured
 - [ ] Production Clerk application configured
-- [ ] Telebirr production credentials obtained
+- [ ] Chapa production credentials obtained
 - [ ] Upstash Redis configured (for rate limiting)
 - [ ] Sentry configured (for error tracking)
 - [ ] `NEXT_PUBLIC_APP_URL` set to production domain

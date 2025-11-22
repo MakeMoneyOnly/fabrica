@@ -87,10 +87,10 @@ Before deploying to staging, ensure:
 
 ### 1.4 Other Services (Staging Credentials)
 
-**Telebirr:**
+**Chapa:**
 
-- Use Telebirr sandbox/test credentials
-- Set `TELEBIRR_API_URL=https://sandbox.telebirr.et/v2`
+- Use Chapa test mode credentials
+- Set `CHAPA_SECRET_KEY=CHASECK_TEST-xxxxx` for sandbox
 
 **Upstash Redis:**
 
@@ -128,14 +128,11 @@ Before deploying to staging, ensure:
    CLERK_WEBHOOK_SECRET=whsec_staging_...
    ```
 
-   **Telebirr (Sandbox):**
+   **Chapa (Test Mode):**
 
    ```
-   TELEBIRR_APP_ID=test_app_id
-   TELEBIRR_APP_KEY=test_app_key
-   TELEBIRR_MERCHANT_CODE=test_merchant_code
-   TELEBIRR_WEBHOOK_SECRET=test_webhook_secret
-   TELEBIRR_API_URL=https://sandbox.telebirr.et/v2
+   CHAPA_SECRET_KEY=CHASECK_TEST-your_test_secret_key
+   CHAPA_WEBHOOK_SECRET=your_test_webhook_secret
    ```
 
    **Optional:**
@@ -235,7 +232,7 @@ Follow the comprehensive testing guide: `TESTING_GUIDE.md`
 **Payment Flow:**
 
 - [ ] Payment initiation API works
-- [ ] Telebirr payment page loads
+- [ ] Chapa payment page loads
 - [ ] Webhook receives payment callbacks
 - [ ] Order status updates correctly
 - [ ] Email notifications sent (if configured)
@@ -310,7 +307,7 @@ Before promoting staging to production:
 2. Update all variables with production credentials:
    - Supabase production project
    - Clerk production application
-   - Telebirr production credentials
+   - Chapa production credentials
    - Production Redis instance
    - Production Sentry project
 

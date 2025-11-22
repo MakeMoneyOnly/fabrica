@@ -82,38 +82,39 @@ CLERK_WEBHOOK_SECRET=whsec_xxxxx
 - Check webhook receives events (check logs)
 - Verify users sync to Supabase database
 
-### Telebirr Payment Integration
+### Chapa Payment Integration
 
 **Where to get:**
 
-1. Contact Telebirr support for developer credentials
-2. Request sandbox credentials for testing
-3. Get production credentials when ready to launch
+1. Sign up at [Chapa Dashboard](https://dashboard.chapa.co/)
+2. Complete business registration and KYC verification
+3. Obtain API credentials from dashboard
+4. Test mode is available immediately after signup
 
 ```env
-TELEBIRR_APP_ID=your_app_id
-TELEBIRR_APP_KEY=your_app_key
-TELEBIRR_MERCHANT_CODE=your_merchant_code
-TELEBIRR_WEBHOOK_SECRET=your_webhook_secret
-TELEBIRR_API_URL=https://api.telebirr.com/api/v1
+CHAPA_SECRET_KEY=CHASECK-your_secret_key_here
+CHAPA_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
 **Sandbox (for testing):**
 
 ```env
-TELEBIRR_API_URL=https://sandbox-api.telebirr.com/api/v1
+CHAPA_SECRET_KEY=CHASECK_TEST-your_test_secret_key_here
+CHAPA_WEBHOOK_SECRET=your_test_webhook_secret_here
 ```
 
 **Notes:**
 
-- All Telebirr variables are required
-- Use sandbox URL for development/testing
+- All Chapa variables are required
+- Secret key format: `CHASECK-xxxxx` (production) or `CHASECK_TEST-xxxxx` (sandbox)
+- Use test mode for development/testing
 - Webhook URL must be publicly accessible (use ngrok for local testing)
+- Documentation: https://developer.chapa.co/
 
 **Verification:**
 
 - Test payment initiation: `POST /api/payments/initiate`
-- Check Telebirr dashboard for payment attempts
+- Check Chapa dashboard for payment attempts
 - Test webhook signature verification
 
 ## Optional Variables
@@ -259,7 +260,7 @@ Before deploying to production:
 - [ ] All required variables set
 - [ ] Production Supabase project configured
 - [ ] Production Clerk application configured
-- [ ] Telebirr production credentials obtained
+- [ ] Chapa production credentials obtained
 - [ ] Upstash Redis configured (for rate limiting)
 - [ ] Sentry configured (for error tracking)
 - [ ] `NEXT_PUBLIC_APP_URL` set to production domain
@@ -287,8 +288,8 @@ Before deploying to production:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `CLERK_SECRET_KEY`
 - `CLERK_WEBHOOK_SECRET`
-- `TELEBIRR_APP_KEY`
-- `TELEBIRR_WEBHOOK_SECRET`
+- `CHAPA_SECRET_KEY`
+- `CHAPA_WEBHOOK_SECRET`
 - `UPSTASH_REDIS_REST_TOKEN`
 - `SENTRY_DSN` (contains auth token)
 
@@ -296,6 +297,6 @@ Before deploying to production:
 
 - [Supabase Documentation](https://supabase.com/docs)
 - [Clerk Documentation](https://clerk.com/docs)
-- [Telebirr Developer Portal](https://developer.telebirr.com/)
+- [Chapa Developer Portal](https://developer.chapa.co/)
 - [Upstash Documentation](https://docs.upstash.com/)
 - [Sentry Documentation](https://docs.sentry.io/)

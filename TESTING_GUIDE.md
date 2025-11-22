@@ -312,18 +312,18 @@ formatEthiopianPhone('912345678') // "+251 91 234 5678"
    }
    ```
 
-## Phase 4: Telebirr Payment Integration
+## Phase 4: Chapa Payment Integration
 
-### 4.1 Test Telebirr SDK
+### 4.1 Test Chapa SDK
 
-**Note:** Requires Telebirr sandbox credentials.
+**Note:** Requires Chapa test mode credentials.
 
 **Test Signature Generation:**
 
 ```typescript
-import { getTelebirrClient } from '@/lib/payments/telebirr'
+import { getChapaClient } from '@/lib/payments/chapa'
 
-const client = getTelebirrClient()
+const client = getChapaClient()
 // Signature generation is tested internally
 ```
 
@@ -337,7 +337,7 @@ const result = await client.initiatePayment({
   customerName: 'Test User',
   customerPhone: '+251912345678',
   returnUrl: 'http://localhost:3000/success',
-  notifyUrl: 'http://localhost:3000/api/webhooks/telebirr',
+  notifyUrl: 'http://localhost:3000/api/webhooks/chapa',
 })
 
 console.log(result) // Should have paymentUrl or error
@@ -359,19 +359,19 @@ curl -X POST http://localhost:3000/api/payments/initiate \
 # Should return payment URL or error
 ```
 
-### 4.3 Test Telebirr Webhook
+### 4.3 Test Chapa Webhook
 
 **Note:** Requires webhook URL to be publicly accessible (use ngrok for local testing).
 
 **Test Webhook Signature Verification:**
 
-1. Send test webhook from Telebirr dashboard
+1. Send test webhook from Chapa dashboard
 2. Check logs for signature verification
 3. Verify order status updates in database
 
 **Test Payment Success:**
 
-1. Complete a test payment in Telebirr sandbox
+1. Complete a test payment in Chapa test mode
 2. Check webhook receives success event
 3. Verify order status changes to 'completed'
 4. Check download link created (for digital products)
@@ -424,8 +424,8 @@ npm run build
 - [ ] Health check endpoint works
 - [ ] Phone validation works
 - [ ] React Query caches data
-- [ ] Telebirr payment initiation works
-- [ ] Telebirr webhook processes payments
+- [ ] Chapa payment initiation works
+- [ ] Chapa webhook processes payments
 - [ ] Environment validation catches missing vars
 - [ ] Sentry captures API route errors
 - [ ] Sentry captures frontend errors
@@ -458,11 +458,11 @@ npm run build
 - Errors still logged to console if Sentry fails
 - Check `src/instrumentation.ts` is properly configured
 
-**Telebirr Integration Issues:**
+**Chapa Integration Issues:**
 
-- Verify all Telebirr env vars are set
-- Check Telebirr sandbox is accessible
-- Review Telebirr API documentation for changes
+- Verify all Chapa env vars are set
+- Check Chapa test mode is accessible
+- Review Chapa API documentation for changes: https://developer.chapa.co/
 
 ## Next Steps
 

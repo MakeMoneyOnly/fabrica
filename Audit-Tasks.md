@@ -16,7 +16,7 @@ Before starting, ensure you have:
 - [ ] Clerk dashboard access (for webhook testing)
 - [ ] Upstash Redis account (for rate limiting)
 - [ ] Sentry account (for error tracking)
-- [ ] Telebirr sandbox credentials (for payment integration testing)
+- [ ] Chapa test mode credentials (for payment integration testing)
 
 ---
 
@@ -616,37 +616,31 @@ Before starting, ensure you have:
 
 ---
 
-## Phase 4: Telebirr Payment Integration (Day 4-7)
+## Phase 4: Chapa Payment Integration (Day 4-7)
 
 **Priority:** P0 - Critical for Revenue  
 **Estimated Time:** 3-4 days
 
-### 4.1 Create Telebirr SDK
+### 4.1 Create Chapa SDK
 
-**New File:** `src/lib/payments/telebirr.ts`
+**New File:** `src/lib/payments/chapa.ts`
 
-- [ ] **Task 4.1.1:** Set up Telebirr environment variables
+- [] **Task 4.1.1:** Set up Chapa environment variables
   - Add to `.env.example`:
-    - `TELEBIRR_APP_ID`
-    - `TELEBIRR_APP_KEY`
-    - `TELEBIRR_MERCHANT_CODE`
-    - `TELEBIRR_WEBHOOK_SECRET`
-    - `TELEBIRR_API_URL` (sandbox/production)
+    - `CHAPA_SECRET_KEY` (Bearer token: CHASECK-xxxxx or CHASECK_TEST-xxxxx)
+    - `CHAPA_WEBHOOK_SECRET`
 
-- [ ] **Task 4.1.2:** Create TelebirrClient class
+- [] **Task 4.1.2:** Create ChapaClient class
   - Constructor accepts config object
   - Store config as private property
   - Support sandbox and production environments
 
-- [ ] **Task 4.1.3:** Implement signature generation (`generateSignature()`)
-  - Sort parameters alphabetically
-  - Create query string: `key1=value1&key2=value2`
-  - Append `&key={appKey}`
-  - Generate HMAC-SHA256 signature
-  - Return uppercase hex string
-  - Use Node.js `crypto` module
+- [] **Task 4.1.3:** Implement Bearer token authentication
+  - Use CHAPA_SECRET_KEY as Bearer token
+  - Format: `Authorization: Bearer CHASECK-xxxxx`
+  - No signature generation needed (simpler than Telebirr)
 
-- [ ] **Task 4.1.4:** Implement `initiatePayment()` method
+- [] **Task 4.1.4:** Implement `initiatePayment()` method
   - Accept parameters:
     - `orderId`: string (unique order identifier)
     - `amount`: number (in ETB)
@@ -659,20 +653,20 @@ Before starting, ensure you have:
   - Generate `timestamp` (Unix timestamp)
   - Create request parameters object
   - Generate signature using `generateSignature()`
-  - Make POST request to Telebirr API
+  - Make POST request to Chapa API (`https://api.chapa.co/v1/transaction/initialize`)
   - Handle response and return `{ success, paymentUrl?, error? }`
   - Add retry logic for network failures (3 retries)
 
 - [ ] **Task 4.1.5:** Implement `queryPayment()` method
   - Accept `orderId` parameter
   - Generate signature for query request
-  - Make POST request to Telebirr query endpoint
+  - Make GET request to Chapa verify endpoint (`https://api.chapa.co/v1/transaction/verify/<tx_ref>`)
   - Return payment status: `SUCCESS`, `FAILED`, `PENDING`, `CLOSED`
   - Return transaction ID and paid timestamp if successful
 
 - [ ] **Task 4.1.6:** Implement `verifyWebhookSignature()` method
   - Accept `payload` (string) and `signature` (string)
-  - Generate expected signature using `TELEBIRR_WEBHOOK_SECRET`
+  - Generate expected signature using `CHAPA_WEBHOOK_SECRET` and `Chapa-Signature` header
   - Use HMAC-SHA256
   - Compare signatures using `crypto.timingSafeEqual()` (prevent timing attacks)
   - Return `true` if valid, `false` otherwise
@@ -684,7 +678,7 @@ Before starting, ensure you have:
   - Log errors for debugging
 
 - [ ] **Task 4.1.8:** Create singleton instance
-  - Export `telebirrClient` instance
+  - Export `chapaClient` instance
   - Initialize with environment variables
   - Throw error if required env vars missing
 
@@ -695,8 +689,8 @@ Before starting, ensure you have:
 
 **Acceptance Criteria:**
 
-- TelebirrClient class implements all required methods
-- Signature generation matches Telebirr specification
+- ChapaClient class implements all required methods
+- Bearer token authentication implemented
 - Payment initiation works with sandbox
 - Webhook signature verification works
 - Error handling is comprehensive
@@ -718,7 +712,7 @@ Before starting, ensure you have:
   - Validate product exists and is available
   - Create order record in database (status: 'pending')
   - Generate unique order number using `generate_order_number` RPC
-  - Call Telebirr SDK `initiatePayment()`
+  - Call Chapa SDK `initiatePayment()`
   - Store payment URL in order record
   - Return payment URL to client
 
@@ -731,12 +725,12 @@ Before starting, ensure you have:
   - Product not found: 404
   - Invalid input: 400 (validation error)
   - Rate limit exceeded: 429
-  - Telebirr API error: 502 (bad gateway)
+  - Chapa API error: 502 (bad gateway)
   - Database error: 500 (internal server error)
 
 - [ ] **Task 4.2.5:** Add logging
   - Log payment initiation attempts
-  - Log Telebirr API responses
+  - Log Chapa API responses
   - Log errors for debugging
 
 - [ ] **Task 4.2.6:** Test payment initiation
@@ -744,25 +738,25 @@ Before starting, ensure you have:
   - Test with invalid input (validation)
   - Test with non-existent product
   - Test rate limiting
-  - Test Telebirr sandbox integration
+  - Test Chapa test mode integration
 
 **Acceptance Criteria:**
 
 - Payment initiation API validates input
 - Creates order in database
-- Returns Telebirr payment URL
+- Returns Chapa checkout URL
 - Handles errors gracefully
 - Rate limiting works
 - Idempotency prevents duplicates
 
 ---
 
-### 4.3 Create Telebirr Webhook Handler
+### 4.3 Create Chapa Webhook Handler
 
-**New File:** `src/app/api/webhooks/telebirr/route.ts`
+**New File:** `src/app/api/webhooks/chapa/route.ts`
 
 - [ ] **Task 4.3.1:** Create POST endpoint handler
-  - Accept webhook payload from Telebirr
+  - Accept webhook payload from Chapa
   - Verify webhook signature using `verifyWebhookSignature()`
   - Return 401 if signature invalid
   - Parse webhook payload
@@ -803,7 +797,7 @@ Before starting, ensure you have:
   - Test payment success flow
   - Test payment failure flow
   - Test idempotency (duplicate webhooks)
-  - Use Telebirr sandbox webhook testing
+  - Use Chapa test mode webhook testing
 
 **Acceptance Criteria:**
 
@@ -835,11 +829,8 @@ Before starting, ensure you have:
     - `SUPABASE_SERVICE_ROLE_KEY`: Non-empty string
     - `CLERK_SECRET_KEY`: Non-empty string
     - `CLERK_WEBHOOK_SECRET`: Non-empty string
-    - `TELEBIRR_APP_ID`: Non-empty string
-    - `TELEBIRR_APP_KEY`: Non-empty string
-    - `TELEBIRR_MERCHANT_CODE`: Non-empty string
-    - `TELEBIRR_WEBHOOK_SECRET`: Non-empty string
-    - `TELEBIRR_API_URL`: URL string
+    - `CHAPA_SECRET_KEY`: Non-empty string (Bearer token format)
+    - `CHAPA_WEBHOOK_SECRET`: Non-empty string
     - `UPSTASH_REDIS_REST_URL`: URL string (optional for dev)
     - `UPSTASH_REDIS_REST_TOKEN`: Non-empty string (optional for dev)
     - `SENTRY_DSN`: URL string (optional for dev)
@@ -859,7 +850,7 @@ Before starting, ensure you have:
   - Update `src/lib/supabase/client.ts`
   - Update `src/lib/supabase/server.ts`
   - Update Clerk webhook handler
-  - Update Telebirr SDK
+  - Update Chapa SDK
   - Update all files using `process.env`
 
 - [ ] **Task 5.1.6:** Add validation to app startup
@@ -899,9 +890,9 @@ After completing all phases, run comprehensive tests:
 - [ ] **Health Check:** Test endpoint with all services up/down
 - [ ] **Phone Validation:** Test valid/invalid phone numbers
 - [ ] **React Query:** Test query hooks (when APIs ready)
-- [ ] **Telebirr SDK:** Test payment initiation in sandbox
-- [ ] **Payment API:** Test payment initiation endpoint
-- [ ] **Telebirr Webhook:** Test webhook signature verification
+- [x] **Chapa SDK:** Test payment initiation in test mode
+- [x] **Payment API:** Test payment initiation endpoint
+- [x] **Chapa Webhook:** Test webhook signature verification
 - [ ] **Environment Validation:** Test with missing env vars
 
 ---
@@ -921,7 +912,7 @@ npm install @upstash/ratelimit @upstash/redis @sentry/nextjs
 - **Phase 1:** 1-2 days (Foundation Critical Fixes)
 - **Phase 2:** 1-2 days (Validation & Security)
 - **Phase 3:** 1-2 days (High Priority Fixes)
-- **Phase 4:** 3-4 days (Telebirr Integration)
+- **Phase 4:** 3-4 days (Chapa Integration)
 - **Phase 5:** 2-3 hours (Environment Validation)
 
 **Total:** 6-10 days of focused development
@@ -948,7 +939,7 @@ npm install @upstash/ratelimit @upstash/redis @sentry/nextjs
 
 **Overall Progress:** 17/17 major tasks complete ✅
 
-**Note:** Phase 3 implementation and testing complete. All 157 tests passing. Ready for Phase 4 (Telebirr Payment Integration).
+**Note:** Phase 3 implementation and testing complete. All 157 tests passing. Phase 4 migrated to Chapa Payment Integration (completed).
 
 **Recent Updates:**
 

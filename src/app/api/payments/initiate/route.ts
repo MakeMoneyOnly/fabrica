@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getTelebirrClient } from '@/lib/payments/telebirr'
+import { getChapaClient } from '@/lib/payments/chapa'
 import { initiatePaymentSchema } from '@/lib/validations/payments'
 import { validateRequest, validationErrorResponse } from '@/lib/validations/utils'
 import { paymentLimiter } from '@/lib/ratelimit'
@@ -11,7 +11,8 @@ import { successResponse } from '@/lib/api/response'
 
 /**
  * POST /api/payments/initiate
- * Initiate a Telebirr payment for an order
+ * Initiate a Chapa payment for an order
+ * Documentation: https://developer.chapa.co/integrations/accept-payments
  */
 async function handler(req: NextRequest): Promise<NextResponse> {
   // Apply rate limiting
@@ -93,7 +94,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
         customer_phone: customerPhone,
         amount: product.price || 0,
         payment_status: 'pending',
-        payment_provider: 'telebirr',
+        payment_provider: 'chapa',
       })
       .select()
       .single()
@@ -102,17 +103,18 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       throw new Error('Failed to create order')
     }
 
-    // Initiate payment with Telebirr
-    const telebirrClient = getTelebirrClient()
+    // Initiate payment with Chapa
+    const chapaClient = getChapaClient()
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const paymentResult = await telebirrClient.initiatePayment({
+    const paymentResult = await chapaClient.initiatePayment({
       orderId: order.id,
       amount: product.price || 0,
       subject: product.title,
       customerName,
+      customerEmail,
       customerPhone,
       returnUrl: `${baseUrl}/orders/${order.id}/success`,
-      notifyUrl: `${baseUrl}/api/webhooks/telebirr`,
+      notifyUrl: `${baseUrl}/api/webhooks/chapa`,
     })
 
     if (!paymentResult.success || !paymentResult.paymentUrl) {

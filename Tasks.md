@@ -27,7 +27,7 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 - [x] **Vercel**: Set up a new project linked to the GitHub repo. Configure Production, Staging, and Preview environments.
 - [x] **Supabase**: Create `fabrica-prod` and `fabrica-staging` projects. Enable daily backups and Point-in-Time Recovery (PITR) for production.
 - [x] **Clerk**: Set up `fabrica-prod` and `fabrica-dev` applications. Customize theme and configure authentication methods (email, phone).
-- [ ] **Telebirr**: Apply for and secure a merchant account. Obtain and securely store sandbox and production API credentials.
+- [x] **Chapa**: Sign up at Chapa Dashboard and obtain API credentials. Test mode available immediately.
 - [ ] **Resend**: Sign up and obtain API key. Configure with `fabrica.et` domain and necessary DNS records (DKIM, SPF).
 - [ ] **Cloudflare**: Set up `fabrica.et` domain, configure DNS to point to Vercel, and enable security features (WAF, DDoS, Bot Fight Mode).
 - [ ] **Sentry**: Set up a project for error monitoring and configure source maps.
@@ -73,7 +73,7 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 - [ ] Build the multi-step onboarding wizard UI using a state machine (Zustand).
 - [ ] Step 1: Implement username selection with a real-time availability check API.
 - [ ] Step 2: Build the profile setup form with secure avatar upload.
-- [ ] Step 3: Create the "Connect Telebirr" form with encryption for sensitive account info.
+- [ ] Step 3: Create the "Connect Payment Account" form with encryption for sensitive account info (supports Chapa/Telebirr via Chapa).
 - [ ] Step 4: Implement a guided "Create First Product" flow.
 - [ ] Step 5: Build the "Preview & Launch" step.
 - [ ] Configure and design all transactional email templates in Resend (Welcome, New Order, etc.).
@@ -103,12 +103,12 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 ### 1.5. Guest Checkout & Payments
 
 - [ ] Build the guest checkout UI with Zod validation.
-- [ ] Implement a provider-agnostic payment SDK structure in `/lib/payments` with Telebirr as the first provider.
+- [x] Implement Chapa payment SDK in `/lib/payments/chapa.ts` (supports multiple payment methods including Telebirr).
 - [ ] Create the "Initiate Payment" API with validation and detailed logging.
-- [ ] Create the Telebirr webhook handler with **critical** signature verification and idempotency checks.
+- [x] Create the Chapa webhook handler with **critical** signature verification and idempotency checks.
 - [ ] Implement atomic database updates within the webhook using an RPC function.
 - [ ] Build the order confirmation page and the secure file download handler with token validation and download limits.
-- [ ] Implement the creator-initiated refund system via an API that calls the Telebirr refund API.
+- [ ] Implement the creator-initiated refund system via an API that calls the Chapa refund API.
 - [ ] Implement one-click checkout functionality.
 - [ ] Add payment plans option for higher-priced products.
 

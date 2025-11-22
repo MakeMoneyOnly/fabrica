@@ -61,9 +61,9 @@ All Critical (P0) and High Priority (P1) issues from the audit report have been 
 5. **Phone Validation** - Ethiopian phone utility
 6. **React Query** - Provider and hooks set up
 
-### ✅ Phase 4: Telebirr Payment Integration
+### ✅ Phase 4: Chapa Payment Integration
 
-1. **Telebirr SDK** - Complete implementation
+1. **Chapa SDK** - Complete implementation
    - Signature generation
    - Payment initiation
    - Payment query
@@ -75,7 +75,7 @@ All Critical (P0) and High Priority (P1) issues from the audit report have been 
    - Idempotency
    - Error handling
 
-3. **Telebirr Webhook** - `/api/webhooks/telebirr`
+3. **Chapa Webhook** - `/api/webhooks/chapa`
    - Signature verification
    - Payment processing
    - Idempotency checks
@@ -103,13 +103,10 @@ See `ENV_SETUP.md` for complete list. Required variables:
 - `CLERK_SECRET_KEY`
 - `CLERK_WEBHOOK_SECRET`
 
-**Telebirr:**
+**Chapa:**
 
-- `TELEBIRR_APP_ID`
-- `TELEBIRR_APP_KEY`
-- `TELEBIRR_MERCHANT_CODE`
-- `TELEBIRR_WEBHOOK_SECRET`
-- `TELEBIRR_API_URL`
+- `CHAPA_SECRET_KEY` (Bearer token: CHASECK-xxxxx or CHASECK_TEST-xxxxx)
+- `CHAPA_WEBHOOK_SECRET`
 
 **Optional (for full functionality):**
 
@@ -158,7 +155,7 @@ These don't affect the audit fixes and can be addressed separately.
      - Phase 1: Foundation Critical Fixes (Clerk webhook, currency, auth, headers)
      - Phase 2: Validation & Security (input validation, rate limiting, error handling)
      - Phase 3: High Priority Fixes (header, stats, Sentry, health check, phone validation, React Query)
-     - Phase 4: Telebirr Payment Integration (SDK, APIs, webhooks)
+     - Phase 4: Chapa Payment Integration (SDK, APIs, webhooks)
      - Phase 5: Environment Validation
    - Run automated tests: `npm test`, `npm run type-check`, `npm run lint`, `npm run build`
    - Verify all functionality works end-to-end
@@ -169,7 +166,7 @@ These don't affect the audit fixes and can be addressed separately.
      - Vercel staging project (or use preview deployments)
      - Supabase staging database (run migrations)
      - Clerk staging application (configure webhooks)
-     - Staging credentials for Telebirr (sandbox), Redis, Sentry
+     - Staging credentials for Chapa (test mode), Redis, Sentry
    - Configure staging environment variables in Vercel
    - Deploy to staging: `git push origin staging` or `vercel --env=staging`
    - Verify deployment: Check build logs, test health endpoint, verify security headers
@@ -184,7 +181,7 @@ These don't affect the audit fixes and can be addressed separately.
 - Rate limiting (2 files)
 - Error handling (3 files)
 - React Query setup (3 files)
-- Telebirr SDK and APIs (3 files)
+- Chapa SDK and APIs (3 files)
 - Phone utility (1 file)
 - Environment validation (1 file)
 - Site constants (1 file)
@@ -236,5 +233,5 @@ These don't affect the audit fixes and can be addressed separately.
 - Some TypeScript errors remain in seed script and generated types (non-blocking)
 - Rate limiting requires Upstash Redis setup (optional for development)
 - Sentry requires account setup (optional for development)
-- Telebirr requires sandbox credentials for testing
+- Chapa requires sandbox credentials for testing (test mode available immediately)
 - All implementations are production-ready pending configuration
