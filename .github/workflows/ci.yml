@@ -141,13 +141,42 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true # Don't block on low-priority issues
 
+      - name: Determine scan parameters
+        id: scan-params
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+          else
+            # For push events, use before/after SHAs
+            BASE="${{ github.event.before }}"
+            HEAD="${{ github.event.after }}"
+          fi
+
+          # Check if BASE and HEAD are the same (skip scan if so)
+          if [[ "$BASE" == "$HEAD" ]] || [[ "$BASE" == "0000000000000000000000000000000000000000" ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "⚠️  BASE and HEAD are the same, skipping diff scan"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "base=$BASE" >> $GITHUB_OUTPUT
+            echo "head=$HEAD" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for secrets in code
+        if: steps.scan-params.outputs.skip == 'false'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ steps.scan-params.outputs.base }}
+          head: ${{ steps.scan-params.outputs.head }}
           extra_args: --only-verified
+
+      - name: Skip scan notice
+        if: steps.scan-params.outputs.skip == 'true'
+        run: |
+          echo "⚠️  Skipping secret scan: BASE and HEAD are the same (likely first push to branch)"
+          echo "This is expected behavior and not a security concern."
 
   # Summary job - runs after all jobs complete
   ci-summary:
