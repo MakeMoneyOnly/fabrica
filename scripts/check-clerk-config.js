@@ -37,10 +37,14 @@ const publishableKey = envVars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
 console.log('📋 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:')
 console.log(`   Exists: ${publishableKey ? '✅ Yes' : '❌ No'}`)
 console.log(`   Length: ${publishableKey.length}`)
-console.log(`   Value: ${publishableKey.substring(0, 20)}...${publishableKey.substring(publishableKey.length - 10)}`)
+console.log(
+  `   Value: ${publishableKey.substring(0, 20)}...${publishableKey.substring(publishableKey.length - 10)}`
+)
 console.log(`   Starts with pk_test_: ${publishableKey.startsWith('pk_test_') ? '✅' : '❌'}`)
 console.log(`   Starts with pk_live_: ${publishableKey.startsWith('pk_live_') ? '✅' : '❌'}`)
-console.log(`   Contains "your_": ${publishableKey.includes('your_') ? '❌ Yes (INVALID)' : '✅ No'}`)
+console.log(
+  `   Contains "your_": ${publishableKey.includes('your_') ? '❌ Yes (INVALID)' : '✅ No'}`
+)
 console.log(`   Contains "xxx": ${publishableKey.includes('xxx') ? '❌ Yes (INVALID)' : '✅ No'}`)
 
 // Validation check
@@ -87,7 +91,7 @@ console.log(`   Starts with whsec_: ${webhookSecret.startsWith('whsec_') ? '✅'
 console.log('\n' + '='.repeat(50))
 if (isValid && secretKey && webhookSecret) {
   console.log('✅ Clerk is properly configured!')
-  console.log('\n💡 If the button still doesn\'t work:')
+  console.log("\n💡 If the button still doesn't work:")
   console.log('   1. Make sure you restarted your dev server after updating .env.local')
   console.log('   2. Check browser console for errors')
   console.log('   3. Verify ClerkProvider is wrapping your app in layout.tsx')
@@ -95,4 +99,3 @@ if (isValid && secretKey && webhookSecret) {
   console.log('❌ Clerk configuration has issues. Fix the problems above.')
 }
 console.log('='.repeat(50) + '\n')
-

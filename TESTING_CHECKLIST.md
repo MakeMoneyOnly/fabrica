@@ -659,9 +659,9 @@ npm run build
 
 ## Sign-Off
 
-**Tester Name:** ********\_********
+**Tester Name:** **\*\*\*\***\_**\*\*\*\***
 
-**Date:** ********\_********
+**Date:** **\*\*\*\***\_**\*\*\*\***
 
 **Overall Status:**
 
