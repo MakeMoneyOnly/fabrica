@@ -1,19 +1,12 @@
 'use client'
 
 import { useAuth as useClerkAuth, useUser, useClerk } from '@clerk/nextjs'
-import { useContext, createContext } from 'react'
 
 interface User {
   id: string
   email: string | null
   name: string | null
 }
-
-/**
- * Context to track if ClerkProvider is available
- * This allows us to check if ClerkProvider exists before using hooks
- */
-const ClerkProviderContext = createContext<boolean>(false)
 
 /**
  * Custom hook that wraps Clerk's useAuth and maps it to our application's user interface
@@ -64,18 +57,6 @@ export function useAuthSafe() {
   // Always call hooks (Rules of Hooks)
   // These will throw if ClerkProvider is not present
   // We check configuration first, but still need to call hooks
-  const publishableKey =
-    typeof window !== 'undefined'
-      ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-      : process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-
-  const isClerkConfigured =
-    !!publishableKey &&
-    publishableKey.length > 20 &&
-    (publishableKey.startsWith('pk_test_') || publishableKey.startsWith('pk_live_')) &&
-    !publishableKey.includes('your_') &&
-    !publishableKey.includes('xxx')
-
   // Always call hooks - they will throw if ClerkProvider is not present
   // This is expected when Clerk is not configured
   // Components should handle this with error boundaries or conditional rendering

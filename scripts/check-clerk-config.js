@@ -3,6 +3,7 @@
  * Run with: node scripts/check-clerk-config.js
  */
 
+/* eslint-disable no-console */
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -12,7 +13,7 @@ const __dirname = path.dirname(__filename)
 
 // Load .env.local
 const envPath = path.join(process.cwd(), '.env.local')
-let envVars = {}
+const envVars = {}
 
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf-8')

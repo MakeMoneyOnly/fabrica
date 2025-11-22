@@ -15,7 +15,6 @@ export function handleApiError(error: unknown): NextResponse {
   if (typeof window === 'undefined' && process.env.SENTRY_DSN) {
     try {
       // Import Sentry synchronously - it's already installed and configured
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const Sentry = require('@sentry/nextjs')
       Sentry.captureException(error)
     } catch (sentryError) {

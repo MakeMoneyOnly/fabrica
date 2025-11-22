@@ -21,6 +21,7 @@ const colors = {
 }
 
 function log(message: string, color: keyof typeof colors = 'reset') {
+  // eslint-disable-next-line no-console
   console.log(`${colors[color]}${message}${colors.reset}`)
 }
 
@@ -91,15 +92,10 @@ function loadEnvFile() {
     })
 
     return envVars
-  } catch (error) {
+  } catch {
     logWarning('.env.local file not found - checking process.env only')
     return {}
   }
-}
-
-// Check if variable is set
-function isSet(value: string | undefined): boolean {
-  return value !== undefined && value !== '' && value !== 'your_xxx_here'
 }
 
 // Main verification function

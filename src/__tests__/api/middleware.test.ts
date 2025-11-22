@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { handleApiError, withErrorHandling } from '@/lib/api/middleware'
-import { ApiError, NotFoundError, ValidationError } from '@/lib/api/errors'
+import { NotFoundError, ValidationError } from '@/lib/api/errors'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Mock Sentry module - this will be used when require() is called

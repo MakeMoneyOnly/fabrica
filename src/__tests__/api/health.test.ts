@@ -29,6 +29,7 @@ describe('GET /api/health', () => {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
 
     // Mock environment variable
@@ -57,6 +58,7 @@ describe('GET /api/health', () => {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
     process.env.CLERK_SECRET_KEY = 'test-secret'
 
@@ -79,6 +81,7 @@ describe('GET /api/health', () => {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
     process.env.CLERK_SECRET_KEY = 'test-secret'
 
@@ -101,6 +104,7 @@ describe('GET /api/health', () => {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
     process.env.CLERK_SECRET_KEY = 'test-secret'
 
@@ -123,6 +127,7 @@ describe('GET /api/health', () => {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
     process.env.CLERK_SECRET_KEY = 'test-secret'
 
