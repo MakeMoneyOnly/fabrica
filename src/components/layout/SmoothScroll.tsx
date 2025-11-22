@@ -15,8 +15,11 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       import('locomotive-scroll').then((LocomotiveScrollModule) => {
         const LocomotiveScroll = LocomotiveScrollModule.default
         // Valid locomotive-scroll v4 options only (inertia is not supported in v4)
+        if (!scrollRef.current) {
+          return
+        }
         const locomotiveScroll = new LocomotiveScroll({
-          el: scrollRef.current!,
+          el: scrollRef.current,
           smooth: true,
           multiplier: 0.8,
           class: 'is-revealed',

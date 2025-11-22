@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { uuidSchema, etbAmountSchema, nonEmptyStringSchema } from './schemas'
+import { uuidSchema, etbAmountSchema } from './schemas'
 
 /**
  * Product type enum

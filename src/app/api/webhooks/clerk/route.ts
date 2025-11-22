@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         const supabase = createAdminClient()
 
         // Call RPC function to create user with referral support
-        const { data, error } = await supabase.rpc('create_user_with_referral', {
+        const { error } = await supabase.rpc('create_user_with_referral', {
           p_clerk_user_id: id || '',
           p_email: email,
           p_phone: phone || undefined,
@@ -129,8 +129,6 @@ export async function POST(req: Request) {
 
       case 'user.deleted': {
         // Handle user deletion - soft delete by updating user record
-        const supabase = createAdminClient()
-
         // Note: We don't actually delete the user record to preserve data integrity
         // Instead, we could add a deleted_at column in the future for soft deletes
         // For now, we'll just log the deletion

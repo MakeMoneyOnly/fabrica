@@ -22,7 +22,7 @@ export async function GET() {
     } else {
       services.database = { status: 'up', responseTime: dbResponseTime }
     }
-  } catch (error) {
+  } catch {
     services.database = { status: 'down' }
   }
 
@@ -30,7 +30,7 @@ export async function GET() {
   try {
     const storageStartTime = Date.now()
     const supabase = createAdminClient()
-    const { data, error } = await supabase.storage.listBuckets()
+    const { error } = await supabase.storage.listBuckets()
     const storageResponseTime = Date.now() - storageStartTime
 
     if (error) {
@@ -38,7 +38,7 @@ export async function GET() {
     } else {
       services.storage = { status: 'up', responseTime: storageResponseTime }
     }
-  } catch (error) {
+  } catch {
     services.storage = { status: 'down' }
   }
 
@@ -50,7 +50,7 @@ export async function GET() {
     } else {
       services.auth = { status: 'down' }
     }
-  } catch (error) {
+  } catch {
     services.auth = { status: 'down' }
   }
 

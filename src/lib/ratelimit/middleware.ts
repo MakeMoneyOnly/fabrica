@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
-import { RateLimitError } from '@/lib/api/errors'
 import { errorResponse } from '@/lib/api/response'
 
 /**

@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 /**
  * Database Seed Script for Development
  *
@@ -36,7 +37,7 @@ import { getAdminClient } from '../src/lib/supabase/admin'
 let supabase: ReturnType<typeof getAdminClient>
 
 // Verify connection and schema
-async function verifyConnection() {
+async function _verifyConnection() {
   console.log('🔍 Verifying database connection...')
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   console.log(`   URL: ${supabaseUrl ? new URL(supabaseUrl).origin : 'NOT SET'}`)
@@ -56,7 +57,7 @@ async function verifyConnection() {
   let lastError: Error | null = null
 
   while (retries > 0) {
-    const { data, error } = await supabase.from('users').select('id').limit(1)
+    const { error } = await supabase.from('users').select('id').limit(1)
 
     if (!error) {
       console.log('   ✅ Database connection verified')
@@ -77,7 +78,12 @@ async function verifyConnection() {
         // Note: exec_sql RPC may not be available, so we wrap in try-catch
         // Using type assertion since this RPC may not exist in all Supabase projects
         try {
-          const rpcResult = await (supabase.rpc as any)('exec_sql', {
+          const rpcResult = await (
+            supabase.rpc as unknown as (
+              name: string,
+              params: { sql: string }
+            ) => Promise<{ error?: unknown }>
+          )('exec_sql', {
             sql: "NOTIFY pgrst, 'reload schema';",
           })
           if (rpcResult?.error) {
@@ -135,7 +141,7 @@ async function seed() {
       } else if (!testQuery.error) {
         console.log('   ✅ PostgREST connection verified')
       }
-    } catch (err) {
+    } catch {
       // Ignore test query errors - we'll proceed with seeding
       console.log('   ⚠️  Could not verify connection, proceeding anyway')
     }
@@ -255,8 +261,8 @@ async function seed() {
 
       users = result.data
       usersError = result.error
-    } catch (err: any) {
-      usersError = err
+    } catch (err: unknown) {
+      usersError = err as Error
     }
 
     if (usersError) {
@@ -618,7 +624,6 @@ async function seed() {
         if (digitalOrders.length > 0) {
           console.log('🔗 Creating download links...')
           const downloadLinks = digitalOrders.map((order) => {
-            const product = products.find((p) => p.id === order.product_id)
             const expiresAt = new Date()
             expiresAt.setDate(expiresAt.getDate() + 7) // 7 days from now
 
@@ -646,11 +651,11 @@ async function seed() {
     // Create storefront settings
     console.log('🎨 Creating storefront settings...')
     if (users && users.length > 0) {
-      const storefrontSettings = users.slice(0, 3).map((user) => ({
+      const storefrontSettings = users.slice(0, 3).map((user, index) => ({
         user_id: user.id,
-        theme_name: ['modern', 'minimal', 'bold'][Math.floor(Math.random() * 3)],
-        primary_color: ['#22c55e', '#3b82f6', '#8b5cf6'][Math.floor(Math.random() * 3)],
-        show_fabrica_badge: user.subscription_plan === 'creator_pro' ? false : true,
+        theme_name: ['modern', 'minimal', 'bold'][index % 3],
+        primary_color: ['#22c55e', '#3b82f6', '#8b5cf6'][index % 3],
+        show_fabrica_badge: user.subscription_plan !== 'creator_pro',
         seo_title: `${user.full_name || 'User'}'s Store`,
         seo_description: `Shop ${user.full_name || 'User'}'s products and services`,
       }))

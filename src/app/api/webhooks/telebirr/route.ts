@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTelebirrClient } from '@/lib/payments/telebirr'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { UnauthorizedError } from '@/lib/api/errors'
-import { handleApiError, withErrorHandling } from '@/lib/api/middleware'
+import { withErrorHandling } from '@/lib/api/middleware'
 import { successResponse } from '@/lib/api/response'
 
 /**
@@ -27,7 +27,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
 
   // Parse webhook payload
   const webhookData = JSON.parse(payload)
-  const { outTradeNo, tradeStatus, transactionId, amount, paidAt } = webhookData
+  const { outTradeNo, tradeStatus, transactionId, amount } = webhookData
 
   if (!outTradeNo) {
     return successResponse({ message: 'Webhook received but missing order ID' })
@@ -57,7 +57,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
     // Handle payment success
     if (tradeStatus === 'SUCCESS') {
       // Call process_payment RPC function to atomically update order and product
-      const { data: paymentResult, error: paymentError } = await supabase.rpc('process_payment', {
+      const { error: paymentError } = await supabase.rpc('process_payment', {
         p_order_id: order.id,
         p_payment_provider_id: transactionId || 'telebirr',
         p_amount: parseFloat(amount) || order.amount,
