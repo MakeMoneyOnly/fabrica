@@ -203,19 +203,62 @@ curl http://localhost:3000/api/stats
 # }
 ```
 
-### 3.3 Test Sentry Integration
+### 3.3 Test Sentry Integration ✅
 
-**Trigger Test Error:**
+**Sentry is fully implemented and configured. Test the following:**
 
-1. Create test route: `src/app/api/test-sentry/route.ts`
-   ```typescript
-   export async function GET() {
-     throw new Error('Test Sentry error')
-   }
-   ```
-2. Visit `/api/test-sentry` in browser
-3. Check Sentry dashboard (should see error within seconds)
-4. Delete test route after verification
+**Test API Route Error Capture:**
+
+```bash
+# Test the dedicated Sentry test endpoint
+curl http://localhost:3000/api/test-sentry
+
+# Should return:
+# {
+#   "success": false,
+#   "error": {
+#     "code": "TEST_ERROR",
+#     "message": "This is a test error for Sentry verification"
+#   },
+#   "meta": {
+#     "timestamp": "...",
+#     "note": "Check your Sentry dashboard - this error should appear there"
+#   }
+# }
+```
+
+**Test Frontend Error Capture:**
+
+1. Visit `http://localhost:3000/sentry-example-page`
+2. Click "Throw Sample Error" button
+3. Check Sentry dashboard - should see error within seconds
+4. Verify error includes stack trace and context
+
+**Test Backend Error Capture:**
+
+```bash
+# Test the example API route
+curl http://localhost:3000/api/sentry-example-api
+
+# Should trigger error and appear in Sentry dashboard
+```
+
+**Run Automated Tests:**
+
+```bash
+# Run Sentry integration tests
+npm test -- sentry.test.ts
+
+# Run test-sentry route tests
+npm test -- test-sentry.test.ts
+```
+
+**Verify Sentry Configuration:**
+
+1. Check all config files use environment variables (no hardcoded DSNs)
+2. Verify `SENTRY_DSN` is set in `.env.local`
+3. Check Sentry dashboard for error reports
+4. Verify source maps are configured in `next.config.js`
 
 ### 3.4 Test Health Check Endpoint
 
@@ -384,6 +427,10 @@ npm run build
 - [ ] Telebirr payment initiation works
 - [ ] Telebirr webhook processes payments
 - [ ] Environment validation catches missing vars
+- [ ] Sentry captures API route errors
+- [ ] Sentry captures frontend errors
+- [ ] Sentry captures React component errors
+- [ ] Sentry test endpoint returns proper error response
 
 ## Troubleshooting
 
@@ -403,9 +450,13 @@ npm run build
 
 **Sentry Not Capturing Errors:**
 
-- Verify `SENTRY_DSN` is set
+- Verify `SENTRY_DSN` is set in `.env.local`
 - Check Sentry dashboard for project status
+- Visit `/api/test-sentry` to trigger a test error
+- Check browser console for Sentry initialization messages
+- Verify network requests to Sentry are not blocked (check ad-blockers)
 - Errors still logged to console if Sentry fails
+- Check `src/instrumentation.ts` is properly configured
 
 **Telebirr Integration Issues:**
 

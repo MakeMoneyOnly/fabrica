@@ -55,21 +55,30 @@ export default function Page() {
         <button
           type="button"
           onClick={async () => {
-            await Sentry.startSpan(
-              {
-                name: 'Example Frontend/Backend Span',
-                op: 'test',
-              },
-              async () => {
-                const res = await fetch('/api/sentry-example-api')
-                if (!res.ok) {
-                  setHasSentError(true)
+            try {
+              await Sentry.startSpan(
+                {
+                  name: 'Example Frontend/Backend Span',
+                  op: 'test',
+                },
+                async () => {
+                  const res = await fetch('/api/sentry-example-api')
+                  if (!res.ok) {
+                    setHasSentError(true)
+                  }
                 }
-              }
-            )
-            throw new SentryExampleFrontendError(
-              'This error is raised on the frontend of the example page.'
-            )
+              )
+              // Throw a test error to verify Sentry captures frontend errors
+              throw new SentryExampleFrontendError(
+                'This error is raised on the frontend of the example page.'
+              )
+            } catch (error) {
+              // Explicitly capture the error in Sentry
+              Sentry.captureException(error)
+              setHasSentError(true)
+              // Re-throw to show error in console for debugging
+              throw error
+            }
           }}
           disabled={!isConnected}
         >

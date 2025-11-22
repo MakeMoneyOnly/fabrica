@@ -11,16 +11,16 @@ export function handleApiError(error: unknown): NextResponse {
   // Log error for debugging
   console.error('API Error:', error)
 
-  // Capture error in Sentry if available
+  // Capture error in Sentry if available (server-side only)
   if (typeof window === 'undefined' && process.env.SENTRY_DSN) {
-    // Server-side Sentry
     try {
-      // Dynamic import to avoid errors if Sentry is not installed
-      import('@sentry/nextjs').then((Sentry) => {
-        Sentry.captureException(error)
-      })
-    } catch {
-      // Sentry not available, continue without it
+      // Import Sentry synchronously - it's already installed and configured
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const Sentry = require('@sentry/nextjs')
+      Sentry.captureException(error)
+    } catch (sentryError) {
+      // Sentry not available or failed to capture, continue without it
+      console.warn('Failed to capture error in Sentry:', sentryError)
     }
   }
 
