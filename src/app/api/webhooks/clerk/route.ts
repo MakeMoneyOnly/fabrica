@@ -1,6 +1,7 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(req: Request) {
   // Get the webhook secret from environment variables
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error occured -- no svix headers', {
+    return new Response('Error occurred -- no svix headers', {
       status: 400,
     })
   }
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
     }) as WebhookEvent
   } catch (err) {
     console.error('Error verifying webhook:', err)
-    return new Response('Error occured', {
+    return new Response('Error occurred', {
       status: 400,
     })
   }
@@ -50,43 +51,112 @@ export async function POST(req: Request) {
   const { id } = evt.data
   const eventType = evt.type
 
-  // Log webhook details for debugging and audit purposes
-  // Using console.warn to make these visible in production logs
+  // Log webhook details for debugging and audit purposes (without sensitive data)
   console.warn(`Webhook received: ID=${id}, Type=${eventType}`)
-  console.warn('Webhook payload:', body)
 
   // Handle different webhook events
-  // TODO: Implement actual database operations for each event type
-  switch (eventType) {
-    case 'user.created':
-      // Handle user creation - sync to database
-      console.warn('Processing user.created event:', evt.data)
-      break
+  try {
+    switch (eventType) {
+      case 'user.created': {
+        // Handle user creation - sync to database
+        const { email_addresses, phone_numbers, first_name, last_name } = evt.data
 
-    case 'user.updated':
-      // Handle user updates - update database record
-      console.warn('Processing user.updated event:', evt.data)
-      break
+        // Extract email and phone
+        const email = email_addresses?.[0]?.email_address
+        const phone = phone_numbers?.[0]?.phone_number || null
+        const fullName = first_name && last_name ? `${first_name} ${last_name}` : null
 
-    case 'user.deleted':
-      // Handle user deletion - soft delete or remove from database
-      console.warn('Processing user.deleted event:', evt.data)
-      break
+        if (!email) {
+          console.error('User created event missing email address')
+          return new Response('Invalid user data: email required', { status: 400 })
+        }
 
-    case 'session.created':
-      // Handle session creation - track user activity
-      console.warn('Processing session.created event:', evt.data)
-      break
+        // Create admin client for database operations
+        const supabase = createAdminClient()
 
-    case 'session.ended':
-      // Handle session ending - update session records
-      console.warn('Processing session.ended event:', evt.data)
-      break
+        // Call RPC function to create user with referral support
+        const { data, error } = await supabase.rpc('create_user_with_referral', {
+          p_clerk_user_id: id || '',
+          p_email: email,
+          p_phone: phone || undefined,
+          p_full_name: fullName || undefined,
+          p_referred_by_code: undefined, // Can be extracted from metadata if needed
+        })
 
-    default:
-      // Log unhandled events for future implementation
-      console.warn(`Unhandled webhook event type: ${eventType}`)
+        if (error) {
+          console.error('Failed to create user in database:', error)
+          return new Response('Database sync failed', { status: 500 })
+        }
+
+        console.warn(`User created successfully: ${id}`)
+        break
+      }
+
+      case 'user.updated': {
+        // Handle user updates - update database record
+        const { email_addresses, phone_numbers, first_name, last_name } = evt.data
+
+        const email = email_addresses?.[0]?.email_address
+        const phone = phone_numbers?.[0]?.phone_number || null
+        const fullName = first_name && last_name ? `${first_name} ${last_name}` : null
+
+        if (!email) {
+          console.error('User updated event missing email address')
+          return new Response('Invalid user data: email required', { status: 400 })
+        }
+
+        const supabase = createAdminClient()
+
+        // Update user record
+        const { error } = await supabase
+          .from('users')
+          .update({
+            email,
+            phone,
+            full_name: fullName,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('clerk_user_id', id || '')
+
+        if (error) {
+          console.error('Failed to update user in database:', error)
+          return new Response('Database sync failed', { status: 500 })
+        }
+
+        console.warn(`User updated successfully: ${id}`)
+        break
+      }
+
+      case 'user.deleted': {
+        // Handle user deletion - soft delete by updating user record
+        const supabase = createAdminClient()
+
+        // Note: We don't actually delete the user record to preserve data integrity
+        // Instead, we could add a deleted_at column in the future for soft deletes
+        // For now, we'll just log the deletion
+        console.warn(`User deleted event received: ${id}`)
+        // Future: Implement soft delete when deleted_at column is added
+        break
+      }
+
+      case 'session.created':
+        // Handle session creation - track user activity (optional, can be implemented later)
+        console.warn(`Session created for user: ${id}`)
+        break
+
+      case 'session.ended':
+        // Handle session ending - update session records (optional, can be implemented later)
+        console.warn(`Session ended for user: ${id}`)
+        break
+
+      default:
+        // Log unhandled events for future implementation
+        console.warn(`Unhandled webhook event type: ${eventType}`)
+    }
+
+    return new Response('', { status: 200 })
+  } catch (error) {
+    console.error('Error processing webhook:', error)
+    return new Response('Internal server error', { status: 500 })
   }
-
-  return new Response('', { status: 200 })
 }

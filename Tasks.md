@@ -61,9 +61,9 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 - [x] Implement the full database schema as code in a Supabase migration file.
 - [x] Implement robust RLS policies for all tables, with unit tests to verify permissions.
 - [x] Create PostgreSQL Functions (RPC) for complex atomic operations (e.g., `process_payment`, `create_user_with_referral`).
-- [ ] Set up Supabase Storage buckets with strict security policies.
-- [ ] Create server, client, and admin Supabase helper functions (`/lib/supabase/*`).
-- [ ] Implement a `db:seed` script to populate the development database with realistic sample data.
+- [x] Set up Supabase Storage buckets with strict security policies.
+- [x] Create server, client, and admin Supabase helper functions (`/lib/supabase/*`).
+- [x] Implement a `db:seed` script to populate the development database with realistic sample data.
 
 ### 1.2. User Authentication & Onboarding
 

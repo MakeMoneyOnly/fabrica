@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { QueryProvider } from '@/lib/react-query/provider'
 import SmoothScroll from '@/components/layout/SmoothScroll'
 import './globals.css'
 import 'locomotive-scroll/dist/locomotive-scroll.css'
@@ -19,18 +20,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // This allows the app to build and run without Clerk configuration
   const content = publishableKey ? (
     <ClerkProvider publishableKey={publishableKey}>
+      <QueryProvider>
+        <html lang="en">
+          <body className={inter.className}>
+            <SmoothScroll>{children}</SmoothScroll>
+          </body>
+        </html>
+      </QueryProvider>
+    </ClerkProvider>
+  ) : (
+    <QueryProvider>
       <html lang="en">
         <body className={inter.className}>
           <SmoothScroll>{children}</SmoothScroll>
         </body>
       </html>
-    </ClerkProvider>
-  ) : (
-    <html lang="en">
-      <body className={inter.className}>
-        <SmoothScroll>{children}</SmoothScroll>
-      </body>
-    </html>
+    </QueryProvider>
   )
 
   return content

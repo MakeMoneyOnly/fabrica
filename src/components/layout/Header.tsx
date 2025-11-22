@@ -4,9 +4,12 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { SITE_CONTACT_PHONE, SITE_CONTACT_EMAIL } from '@/lib/constants/site'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isAuthenticated } = useAuth()
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -17,12 +20,25 @@ export function Header() {
     }
   }, [isMenuOpen])
 
-  const navLinks = [
-    { name: 'Studio', href: '/studio' },
-    { name: 'Projects', href: '/projects', count: 27 },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' },
-  ]
+  // Navigation links based on authentication state
+  const navLinks = isAuthenticated
+    ? [
+        { name: 'Dashboard', href: '/dashboard' },
+        { name: 'Products', href: '/dashboard/products' },
+        { name: 'Analytics', href: '/dashboard/analytics' },
+        { name: 'Settings', href: '/dashboard/settings' },
+      ]
+    : [
+        { name: 'Features', href: '/features' },
+        { name: 'Pricing', href: '/pricing' },
+        { name: 'About', href: '/about' },
+        { name: 'Contact', href: '/contact' },
+      ]
+
+  // Mobile menu items
+  const mobileMenuItems = isAuthenticated
+    ? ['Home', 'Dashboard', 'Products', 'Analytics', 'Settings']
+    : ['Home', 'Features', 'Pricing', 'About', 'Contact']
 
   return (
     <>
@@ -46,9 +62,6 @@ export function Header() {
               className="hidden md:block text-base font-medium hover:opacity-70 transition-opacity relative text-center"
             >
               {link.name}
-              {link.count && (
-                <span className="absolute -top-1 -right-3 text-xs text-gray-500">{link.count}</span>
-              )}
             </Link>
           ))}
 
@@ -82,7 +95,7 @@ export function Header() {
       >
         <div className="flex-1 flex flex-col justify-center items-center space-y-4">
           <nav className="flex flex-col items-center space-y-2">
-            {['Home', 'Studio', 'Projects', 'Blog', 'Contact'].map((item) => (
+            {mobileMenuItems.map((item) => (
               <Link
                 key={item}
                 href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -100,16 +113,16 @@ export function Header() {
           <div className="max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-xs font-medium uppercase tracking-wide text-black">
             {/* Left: Contact */}
             <div className="space-y-2">
-              <div>(312) 555-2468</div>
+              <div>{SITE_CONTACT_PHONE}</div>
               <div className="flex items-center gap-1">
                 <div className="bg-black text-white rounded-full p-0.5">
                   <Plus className="w-2 h-2" />
                 </div>
                 <a
-                  href="mailto:hello@fabrica.com"
+                  href={`mailto:${SITE_CONTACT_EMAIL}`}
                   className="underline underline-offset-4 hover:no-underline"
                 >
-                  hello@fabrica.com
+                  {SITE_CONTACT_EMAIL}
                 </a>
               </div>
             </div>

@@ -1,46 +1,35 @@
 'use client'
 
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { useAuth as useClerkAuth, useUser, useClerk } from '@clerk/nextjs'
 
 interface User {
   id: string
-  email: string
-  name: string
+  email: string | null
+  name: string | null
 }
 
-interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  signIn: () => void
-  signOut: () => void
-}
-
-// Mock authentication store
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      isAuthenticated: false,
-      signIn: () => {
-        const mockUser: User = {
-          id: '1',
-          email: 'creator@fabrica.et',
-          name: 'Demo Creator',
-        }
-        set({ user: mockUser, isAuthenticated: true })
-      },
-      signOut: () => {
-        set({ user: null, isAuthenticated: false })
-      },
-    }),
-    {
-      name: 'fabrica-auth',
-    }
-  )
-)
-
+/**
+ * Custom hook that wraps Clerk's useAuth and maps it to our application's user interface
+ * This provides a consistent API for authentication throughout the app
+ */
 export function useAuth() {
-  const { user, isAuthenticated, signIn, signOut } = useAuthStore()
-  return { user, isAuthenticated, signIn, signOut }
+  const { userId, isSignedIn } = useClerkAuth()
+  const { user: clerkUser } = useUser()
+  const { signOut } = useClerk()
+
+  // Map Clerk user to application user interface
+  const user: User | null =
+    clerkUser && userId
+      ? {
+          id: userId,
+          email: clerkUser.emailAddresses[0]?.emailAddress || null,
+          name: clerkUser.fullName || clerkUser.username || null,
+        }
+      : null
+
+  return {
+    user,
+    isAuthenticated: isSignedIn || false,
+    signOut: signOut ? () => signOut() : undefined,
+  }
 }

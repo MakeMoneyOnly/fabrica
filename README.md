@@ -61,7 +61,19 @@ Get your Supabase keys from [Supabase Dashboard](https://supabase.com/dashboard)
 
 **Note:** The `NEXT_PUBLIC_SUPABASE_*` warnings in Vercel are normal and expected. These keys are designed to be public and safe to expose to browsers - they're used in client-side database operations with Row Level Security (RLS) enabled.
 
-4. Run the development server:
+4. Seed the development database:
+
+```bash
+npm run db:seed
+```
+
+**Note:** If you encounter PostgREST schema cache errors (PGRST205), use the SQL seed script instead:
+
+- Open Supabase Dashboard → SQL Editor
+- Copy and paste contents of `supabase/seed-complete.sql`
+- Click "Run"
+
+5. Run the development server:
 
 ```bash
 npm run dev

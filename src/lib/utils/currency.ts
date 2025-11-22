@@ -13,23 +13,23 @@ export const ETB_CURRENCY_SYMBOL = 'ETB'
 
 /**
  * Format Ethiopian Birr amount for display
- * @param amount - Amount in minor units (cents)
+ * @param amount - Amount in ETB (major units)
  * @returns Formatted string like "ETB 1,299.50"
  */
 export function formatETB(amount: number | Decimal): string {
-  const decimalAmount = new Decimal(amount).div(100) // Convert from cents to birr
+  const decimalAmount = new Decimal(amount) // Database stores ETB, not cents
   return `ETB ${decimalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`
 }
 
 /**
- * Parse Ethiopian Birr string to minor units (cents)
+ * Parse Ethiopian Birr string to ETB (major units)
  * @param amountString - String like "1,299.50" or "1299.50"
- * @returns Amount in minor units (cents)
+ * @returns Amount in ETB (major units)
  */
 export function parseETB(amountString: string): number {
   const cleaned = amountString.replace(/[^\d.]/g, '')
   const decimal = new Decimal(cleaned)
-  return decimal.mul(100).toNumber() // Convert to cents
+  return decimal.toNumber() // Database stores ETB, not cents
 }
 
 /**

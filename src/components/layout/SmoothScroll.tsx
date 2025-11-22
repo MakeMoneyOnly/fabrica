@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import LocomotiveScroll from 'locomotive-scroll'
+import type LocomotiveScroll from 'locomotive-scroll'
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -10,27 +10,30 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const pathname = usePathname()
 
   useEffect(() => {
-    let locomotiveScroll: LocomotiveScroll | null = null
+    // Dynamically import LocomotiveScroll only on client side
+    if (scrollRef.current && typeof window !== 'undefined') {
+      import('locomotive-scroll').then((LocomotiveScrollModule) => {
+        const LocomotiveScroll = LocomotiveScrollModule.default
+        // Valid locomotive-scroll v4 options only (inertia is not supported in v4)
+        const locomotiveScroll = new LocomotiveScroll({
+          el: scrollRef.current!,
+          smooth: true,
+          multiplier: 0.8,
+          class: 'is-revealed',
+          touchMultiplier: 2,
+          firefoxMultiplier: 50,
+          scrollFromAnywhere: true,
+          reloadOnContextChange: true,
+        })
 
-    if (scrollRef.current) {
-      locomotiveScroll = new LocomotiveScroll({
-        el: scrollRef.current,
-        smooth: true,
-        multiplier: 0.8,
-        class: 'is-revealed',
-        inertia: 0.75,
-        touchMultiplier: 2,
-        firefoxMultiplier: 50,
-        scrollFromAnywhere: true,
-        reloadOnContextChange: true,
+        locomotiveScrollRef.current = locomotiveScroll
       })
-
-      locomotiveScrollRef.current = locomotiveScroll
     }
 
     return () => {
-      if (locomotiveScroll) {
-        locomotiveScroll.destroy()
+      if (locomotiveScrollRef.current) {
+        locomotiveScrollRef.current.destroy()
+        locomotiveScrollRef.current = null
       }
     }
   }, [])
