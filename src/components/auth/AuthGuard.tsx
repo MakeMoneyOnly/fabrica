@@ -44,7 +44,7 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
     return (
       fallback || (
         <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
-          <h1 className="text-2xl font-bold text-gray-900">Welcome to Fabrica</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome to fabrica</h1>
           <p className="text-gray-600 mb-8">Please sign in to access your creator dashboard</p>
           <div className="flex space-x-4">
             <SignInButton />
@@ -61,7 +61,7 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-xl font-semibold text-gray-900">Fabrica Dashboard</h1>
+            <h1 className="text-xl font-semibold text-gray-900">fabrica dashboard</h1>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
                 Welcome, {user?.firstName || user?.username || 'Creator'}!
