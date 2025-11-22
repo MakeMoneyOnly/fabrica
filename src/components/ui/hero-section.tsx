@@ -1,8 +1,82 @@
 'use client'
 
 import { LiquidButton } from '@/components/ui/liquid-glass-button'
+import { isClerkConfigured } from '@/lib/utils/clerk'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+/**
+ * Dynamically import Clerk components to avoid HMR issues when ClerkProvider is not present
+ * This ensures Clerk components are only loaded when Clerk is configured
+ */
+const ClerkAuthButton = dynamic(
+  () =>
+    Promise.all([
+      import('@clerk/nextjs'),
+      import('next/navigation'),
+      import('@/components/ui/liquid-glass-button'),
+    ]).then(([clerkMod, routerMod, buttonMod]) => {
+      const { SignUpButton, SignedIn, SignedOut } = clerkMod
+      const { useRouter } = routerMod
+      const { LiquidButton } = buttonMod
+
+      /**
+       * Button component for authenticated users - redirects to dashboard
+       */
+      function AuthenticatedButton() {
+        const router = useRouter()
+
+        const handleClick = () => {
+          router.push('/dashboard')
+        }
+
+        return (
+          <LiquidButton className="text-white font-medium" size="lg" onClick={handleClick}>
+            Build Your Store
+          </LiquidButton>
+        )
+      }
+
+      /**
+       * Button component for unauthenticated users - shows auth modal
+       */
+      function UnauthenticatedButton() {
+        return (
+          <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
+            <LiquidButton className="text-white font-medium" size="lg">
+              Build Your Store
+            </LiquidButton>
+          </SignUpButton>
+        )
+      }
+
+      return function ClerkAuthWrapper() {
+        return (
+          <>
+            <SignedIn>
+              <AuthenticatedButton />
+            </SignedIn>
+            <SignedOut>
+              <UnauthenticatedButton />
+            </SignedOut>
+          </>
+        )
+      }
+    }),
+  {
+    ssr: false, // Disable SSR to avoid issues when ClerkProvider is not present
+    loading: () => (
+      <LiquidButton className="text-white font-medium" size="lg" disabled>
+        Build Your Store
+      </LiquidButton>
+    ),
+  }
+)
 
 export function HeroSection() {
+  // Check if Clerk is properly configured (same validation as layout.tsx)
+  const clerkConfigured = isClerkConfigured()
+
   return (
     <section className="relative w-full min-h-screen bg-transparent" data-scroll-section>
       {/* Video Container - Exact spacing like reference */}
@@ -67,9 +141,28 @@ export function HeroSection() {
           digital products effortlessly.
         </p>
         <div className="pointer-events-auto" data-scroll data-scroll-speed="0.2">
-          <LiquidButton className="text-white font-medium" size="lg">
-            Build Your Store
-          </LiquidButton>
+          {clerkConfigured ? (
+            // Clerk is configured - dynamically load Clerk components to avoid HMR issues
+            <Suspense
+              fallback={
+                <LiquidButton className="text-white font-medium" size="lg" disabled>
+                  Build Your Store
+                </LiquidButton>
+              }
+            >
+              <ClerkAuthButton />
+            </Suspense>
+          ) : (
+            // Clerk not configured - show disabled button
+            <LiquidButton
+              className="text-white font-medium opacity-50 cursor-not-allowed"
+              size="lg"
+              disabled
+              title="Authentication not configured. Please set up Clerk to enable this feature."
+            >
+              Build Your Store
+            </LiquidButton>
+          )}
         </div>
       </div>
     </section>
