@@ -26,7 +26,7 @@ _This phase focuses on setting up a professional-grade development ecosystem, ac
 
 - [x] **Vercel**: Set up a new project linked to the GitHub repo. Configure Production, Staging, and Preview environments.
 - [x] **Supabase**: Create `fabrica-prod` and `fabrica-staging` projects. Enable daily backups and Point-in-Time Recovery (PITR) for production.
-- [ ] **Clerk**: Set up `fabrica-prod` and `fabrica-dev` applications. Customize theme and configure authentication methods (email, phone).
+- [x] **Clerk**: Set up `fabrica-prod` and `fabrica-dev` applications. Customize theme and configure authentication methods (email, phone).
 - [ ] **Telebirr**: Apply for and secure a merchant account. Obtain and securely store sandbox and production API credentials.
 - [ ] **Resend**: Sign up and obtain API key. Configure with `fabrica.et` domain and necessary DNS records (DKIM, SPF).
 - [ ] **Cloudflare**: Set up `fabrica.et` domain, configure DNS to point to Vercel, and enable security features (WAF, DDoS, Bot Fight Mode).
@@ -58,9 +58,9 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 
 ### 1.1. Backend & Database
 
-- [ ] Implement the full database schema as code in a Supabase migration file.
-- [ ] Implement robust RLS policies for all tables, with unit tests to verify permissions.
-- [ ] Create PostgreSQL Functions (RPC) for complex atomic operations (e.g., `process_payment`, `create_user_with_referral`).
+- [x] Implement the full database schema as code in a Supabase migration file.
+- [x] Implement robust RLS policies for all tables, with unit tests to verify permissions.
+- [x] Create PostgreSQL Functions (RPC) for complex atomic operations (e.g., `process_payment`, `create_user_with_referral`).
 - [ ] Set up Supabase Storage buckets with strict security policies.
 - [ ] Create server, client, and admin Supabase helper functions (`/lib/supabase/*`).
 - [ ] Implement a `db:seed` script to populate the development database with realistic sample data.
