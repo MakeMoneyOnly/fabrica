@@ -20,11 +20,32 @@ VERCEL_PROJECT_ID=your_project_id
 
 **How to get Vercel credentials:**
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel login`
-3. Run `vercel link` in your project directory
-4. Check `.vercel/project.json` for `orgId` and `projectId`
-5. Get token from: https://vercel.com/account/tokens
+1. **Get VERCEL_TOKEN:**
+   - Go to https://vercel.com/account/tokens
+   - Click "Create Token"
+   - Give it a name (e.g., "GitHub Actions")
+   - Copy the token (you won't see it again!)
+
+2. **Get VERCEL_ORG_ID and VERCEL_PROJECT_ID:**
+   - Option A: From Vercel Dashboard
+     - Go to your project → Settings → General
+     - `VERCEL_ORG_ID` = Team ID (or your user ID if personal account)
+     - `VERCEL_PROJECT_ID` = Project ID
+   - Option B: Using Vercel CLI
+     ```bash
+     npm i -g vercel
+     vercel login
+     vercel link  # in your project directory
+     cat .vercel/project.json  # Check for orgId and projectId
+     ```
+
+3. **Add secrets to GitHub:**
+   - Go to your repository → **Settings** → **Secrets and variables** → **Actions**
+   - Click **New repository secret**
+   - Add each secret:
+     - Name: `VERCEL_TOKEN`, Value: (your token from step 1)
+     - Name: `VERCEL_ORG_ID`, Value: (your org/team ID)
+     - Name: `VERCEL_PROJECT_ID`, Value: (your project ID)
 
 #### Supabase Secrets
 
