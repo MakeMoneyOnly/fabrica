@@ -16,9 +16,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
-  // Only wrap with ClerkProvider if the key is available
+  // Validate Clerk key format before using it
+  // Clerk keys start with pk_test_ or pk_live_ and are at least 20 characters
+  const isValidClerkKey =
+    publishableKey &&
+    publishableKey.length > 20 &&
+    (publishableKey.startsWith('pk_test_') || publishableKey.startsWith('pk_live_')) &&
+    !publishableKey.includes('your_') &&
+    !publishableKey.includes('xxx')
+
+  // Only wrap with ClerkProvider if the key is valid
   // This allows the app to build and run without Clerk configuration
-  const content = publishableKey ? (
+  const content = isValidClerkKey ? (
     <ClerkProvider publishableKey={publishableKey}>
       <QueryProvider>
         <html lang="en">

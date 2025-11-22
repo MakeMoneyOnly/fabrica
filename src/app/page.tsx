@@ -2,8 +2,11 @@ import HeroSection from '@/components/ui/hero-section'
 import { StatsSection } from '@/components/ui/stats-section'
 import { ImageCarousel } from '@/components/ui/image-carousel'
 import { Header } from '@/components/layout/Header'
+import { HeaderWithAuth } from '@/components/layout/HeaderWithAuth'
+import { isClerkConfigured } from '@/lib/utils/clerk'
 
 export default function Home() {
+  const clerkConfigured = isClerkConfigured()
   const demoImages = [
     {
       id: '1',
@@ -57,7 +60,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F5F5F7] w-full overflow-x-hidden">
-      <Header />
+      {clerkConfigured ? <HeaderWithAuth /> : <Header />}
       <HeroSection />
       <div data-scroll-section>
         <StatsSection />

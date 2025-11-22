@@ -16,6 +16,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "db:seed": "npx tsx supabase/seed.ts",
+    "verify:env": "npx tsx scripts/verify-env.ts",
+    "test:all": "npm run type-check && npm run lint && npm test",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

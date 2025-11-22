@@ -4,12 +4,24 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Plus } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 import { SITE_CONTACT_PHONE, SITE_CONTACT_EMAIL } from '@/lib/constants/site'
+import { isClerkConfigured } from '@/lib/utils/clerk'
 
-export function Header() {
+/**
+ * Header component that works with or without Clerk
+ * When Clerk is not configured, it shows unauthenticated navigation
+ *
+ * @param isAuthenticated - Optional prop to override authentication state
+ *                          When provided, Clerk hooks won't be called
+ */
+export function Header({ isAuthenticated: authProp }: { isAuthenticated?: boolean } = {}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const clerkConfigured = isClerkConfigured()
+
+  // If auth prop is provided, use it (means Clerk hooks were called elsewhere)
+  // Otherwise, default to false when Clerk is not configured
+  const isAuthenticated = authProp !== undefined ? authProp : false
+  const showAuthenticatedNav = clerkConfigured && isAuthenticated
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -21,7 +33,8 @@ export function Header() {
   }, [isMenuOpen])
 
   // Navigation links based on authentication state
-  const navLinks = isAuthenticated
+  // Default to unauthenticated when Clerk is not configured
+  const navLinks = showAuthenticatedNav
     ? [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Products', href: '/dashboard/products' },
@@ -36,7 +49,7 @@ export function Header() {
       ]
 
   // Mobile menu items
-  const mobileMenuItems = isAuthenticated
+  const mobileMenuItems = showAuthenticatedNav
     ? ['Home', 'Dashboard', 'Products', 'Analytics', 'Settings']
     : ['Home', 'Features', 'Pricing', 'About', 'Contact']
 

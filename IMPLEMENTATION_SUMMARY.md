@@ -119,14 +119,14 @@ See `ENV_SETUP.md` for complete list. Required variables:
 
 ## Known Issues & Fixes Needed
 
-### TypeScript Errors Fixed:
+### TypeScript Errors Fixed
 
 - ✅ Clerk `useSignOut` import issue - Fixed (using `useClerk()` instead)
 - ✅ Database schema mismatches - Fixed (using `payment_status` instead of `status`, `amount` instead of `total_amount`)
 - ✅ Payment URL storage - Fixed (stored in `metadata` JSON field)
 - ✅ Error handling type issues - Fixed
 
-### Remaining TypeScript Errors:
+### Remaining TypeScript Errors
 
 Some errors in `supabase/seed.ts` and `src/types/supabase.ts` are related to:
 
@@ -152,14 +152,29 @@ These don't affect the audit fixes and can be addressed separately.
    - Add to env vars
 
 4. **Test Implementations**
-   - Follow `TESTING_GUIDE.md`
-   - Test each phase systematically
-   - Verify all functionality
+   - Follow `TESTING_GUIDE.md` for detailed testing procedures
+   - Use `TESTING_CHECKLIST.md` for systematic verification
+   - Test each phase systematically:
+     - Phase 1: Foundation Critical Fixes (Clerk webhook, currency, auth, headers)
+     - Phase 2: Validation & Security (input validation, rate limiting, error handling)
+     - Phase 3: High Priority Fixes (header, stats, Sentry, health check, phone validation, React Query)
+     - Phase 4: Telebirr Payment Integration (SDK, APIs, webhooks)
+     - Phase 5: Environment Validation
+   - Run automated tests: `npm test`, `npm run type-check`, `npm run lint`, `npm run build`
+   - Verify all functionality works end-to-end
 
 5. **Deploy to Staging**
-   - Set up staging environment
-   - Configure production env vars
-   - Test end-to-end flows
+   - Follow `STAGING_DEPLOYMENT_GUIDE.md` for complete staging setup
+   - Set up staging infrastructure:
+     - Vercel staging project (or use preview deployments)
+     - Supabase staging database (run migrations)
+     - Clerk staging application (configure webhooks)
+     - Staging credentials for Telebirr (sandbox), Redis, Sentry
+   - Configure staging environment variables in Vercel
+   - Deploy to staging: `git push origin staging` or `vercel --env=staging`
+   - Verify deployment: Check build logs, test health endpoint, verify security headers
+   - Test end-to-end flows using `TESTING_CHECKLIST.md`
+   - Fix any issues found before proceeding to production
 
 ## Files Created
 
@@ -199,7 +214,9 @@ These don't affect the audit fixes and can be addressed separately.
 
 - `ENV_SETUP.md` - Environment variables guide
 - `SENTRY_SETUP.md` - Sentry configuration guide
-- `TESTING_GUIDE.md` - Comprehensive testing guide
+- `TESTING_GUIDE.md` - Comprehensive testing guide with detailed procedures
+- `TESTING_CHECKLIST.md` - Systematic testing checklist for verification
+- `STAGING_DEPLOYMENT_GUIDE.md` - Complete guide for staging deployment
 - `Audit-Tasks.md` - Task tracking (updated with completion status)
 
 ## Success Criteria Met

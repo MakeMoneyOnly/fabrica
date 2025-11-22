@@ -71,16 +71,31 @@ describe('API Middleware', () => {
       expect(response.status).toBe(500)
     })
 
-    it('should mask error messages in production', () => {
+    it('should mask error messages in production', async () => {
+      // Use vi.stubEnv to mock NODE_ENV (proper Vitest way)
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      vi.stubEnv('NODE_ENV', 'production')
 
       const error = new Error('Internal error message')
       const response = handleApiError(error)
 
       expect(response.status).toBe(500)
 
-      process.env.NODE_ENV = originalEnv
+      // Verify error message is masked in production
+      const responseBody = await response.json()
+      expect(responseBody).toMatchObject({
+        success: false,
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred', // Masked message, not the actual error message
+        },
+      })
+
+      // Verify the actual error message is NOT exposed
+      expect(responseBody.error.message).not.toBe('Internal error message')
+
+      // Restore original value
+      vi.stubEnv('NODE_ENV', originalEnv || 'test')
     })
   })
 
