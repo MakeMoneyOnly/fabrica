@@ -3,13 +3,14 @@
  * Tests for Chapa payment client methods
  */
 
+/// <reference types="vitest" />
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ChapaClient, createChapaClient, getChapaClient } from '@/lib/payments/chapa'
 import type { InitiatePaymentParams } from '@/lib/payments/chapa'
 import crypto from 'crypto'
 
 // Type for mocked fetch function
-type MockedFetch = vi.MockedFunction<typeof fetch>
+type MockedFetch = import('vitest').MockedFunction<typeof fetch>
 
 // Mock Sentry to avoid errors during tests
 vi.mock('@sentry/nextjs', () => ({
@@ -107,7 +108,7 @@ describe('ChapaClient', () => {
 
       expect(result.success).toBe(true)
       const callArgs = (global.fetch as MockedFetch).mock.calls[0]
-      const payload = JSON.parse(callArgs[1].body)
+      const payload = JSON.parse((callArgs[1] as RequestInit).body as string)
       expect(payload.first_name).toBe('John')
       expect(payload.last_name).toBe('John')
     })
@@ -131,7 +132,7 @@ describe('ChapaClient', () => {
 
       expect(result.success).toBe(true)
       const callArgs = (global.fetch as MockedFetch).mock.calls[0]
-      const payload = JSON.parse(callArgs[1].body)
+      const payload = JSON.parse((callArgs[1] as RequestInit).body as string)
       expect(payload.first_name).toBe('John')
       expect(payload.last_name).toBe('Michael Doe')
     })

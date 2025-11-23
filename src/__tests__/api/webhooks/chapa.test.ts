@@ -3,10 +3,12 @@
  * Tests for the /api/webhooks/chapa endpoint
  */
 
+/// <reference types="vitest" />
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { POST } from '@/app/api/webhooks/chapa/route'
 import { getChapaClient } from '@/lib/payments/chapa'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { NextRequest } from 'next/server'
 import crypto from 'crypto'
 
 // Mock dependencies
@@ -50,7 +52,7 @@ describe('POST /api/webhooks/chapa', () => {
     it('should return 401 if signature header is missing', async () => {
       const payload = JSON.stringify({ trx_ref: 'order-123', status: 'success' })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {},
         body: payload,
@@ -91,7 +93,7 @@ describe('POST /api/webhooks/chapa', () => {
 
       mockSupabase.rpc.mockResolvedValue({ error: null })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -132,7 +134,7 @@ describe('POST /api/webhooks/chapa', () => {
 
       mockSupabase.rpc.mockResolvedValue({ error: null })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'x-chapa-signature': signature,
@@ -150,7 +152,7 @@ describe('POST /api/webhooks/chapa', () => {
 
       mockChapaClient.verifyWebhookSignature.mockReturnValue(false)
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': 'invalid-signature',
@@ -213,7 +215,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -246,7 +248,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -284,7 +286,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -317,7 +319,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -379,7 +381,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -409,7 +411,7 @@ describe('POST /api/webhooks/chapa', () => {
         .update(payload)
         .digest('hex')
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -452,7 +454,7 @@ describe('POST /api/webhooks/chapa', () => {
         }),
       })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -480,7 +482,7 @@ describe('POST /api/webhooks/chapa', () => {
 
       mockChapaClient.verifyWebhookSignature.mockReturnValue(true)
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -515,7 +517,7 @@ describe('POST /api/webhooks/chapa', () => {
         }),
       })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
@@ -551,7 +553,7 @@ describe('POST /api/webhooks/chapa', () => {
         }),
       })
 
-      const req = new Request('http://localhost/api/webhooks/chapa', {
+      const req = new NextRequest('http://localhost/api/webhooks/chapa', {
         method: 'POST',
         headers: {
           'Chapa-Signature': signature,
