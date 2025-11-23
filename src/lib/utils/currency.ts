@@ -84,13 +84,26 @@ export function multiply(amount: number, factor: number): number {
 }
 
 /**
+ * Calculate Chapa payment fee (typically 2-3%)
+ * Chapa supports multiple payment methods including Telebirr
+ * Documentation: https://developer.chapa.co/
+ * @param amount - Amount in minor units
+ * @param feePercentage - Fee percentage (default 0.025 for 2.5%)
+ * @returns Fee amount in minor units
+ */
+export function calculateChapaFee(amount: number, feePercentage = 0.025): number {
+  return calculatePercentage(amount, feePercentage)
+}
+
+/**
+ * @deprecated Use calculateChapaFee instead. This function is kept for backward compatibility.
  * Calculate Telebirr fee (2-3%)
  * @param amount - Amount in minor units
  * @param feePercentage - Fee percentage (default 0.025 for 2.5%)
  * @returns Fee amount in minor units
  */
 export function calculateTelebirrFee(amount: number, feePercentage = 0.025): number {
-  return calculatePercentage(amount, feePercentage)
+  return calculateChapaFee(amount, feePercentage)
 }
 
 /**

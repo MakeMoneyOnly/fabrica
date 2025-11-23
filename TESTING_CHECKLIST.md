@@ -409,16 +409,16 @@ function TestComponent() {
 
 ---
 
-## Phase 4: Telebirr Payment Integration
+## Phase 4: Chapa Payment Integration
 
-### 4.1 Telebirr SDK ✅
+### 4.1 Chapa SDK ✅
 
-**Note:** Requires Telebirr sandbox credentials.
+**Note:** Requires Chapa test mode credentials.
 
 **Signature Generation:**
 
 - [ ] Signatures generated correctly
-- [ ] Signatures verified by Telebirr API
+- [x] Bearer token authentication verified
 
 **Payment Initiation:**
 
@@ -430,12 +430,12 @@ const result = await client.initiatePayment({
   customerName: 'Test User',
   customerPhone: '+251912345678',
   returnUrl: 'http://localhost:3000/success',
-  notifyUrl: 'http://localhost:3000/api/webhooks/telebirr',
+  notifyUrl: 'http://localhost:3000/api/webhooks/chapa',
 })
 ```
 
 - [ ] Returns payment URL or error
-- [ ] Payment URL is valid Telebirr URL
+- [ ] Payment URL is valid Chapa checkout URL
 
 ### 4.2 Payment Initiation API ✅
 
@@ -459,9 +459,9 @@ curl -X POST http://localhost:3000/api/payments/initiate \
 
 - [ ] Invalid product ID returns 404
 - [ ] Invalid customer data returns 400
-- [ ] Telebirr API errors handled gracefully
+- [ ] Chapa API errors handled gracefully
 
-### 4.3 Telebirr Webhook ✅
+### 4.3 Chapa Webhook ✅
 
 **Note:** Requires webhook URL to be publicly accessible (use ngrok for local testing).
 
@@ -473,7 +473,7 @@ curl -X POST http://localhost:3000/api/payments/initiate \
 
 **Payment Success:**
 
-- [ ] Complete test payment in Telebirr sandbox
+- [ ] Complete test payment in Chapa test mode
 - [ ] Webhook receives success event
 - [ ] Order status changes to "completed"
 - [ ] Download link created (for digital products)
@@ -579,7 +579,7 @@ npm run build
 
 - [ ] Clerk integration works
 - [ ] Supabase integration works
-- [ ] Telebirr integration works (sandbox)
+- [ ] Chapa integration works (test mode)
 - [ ] Sentry integration works
 - [ ] Redis integration works (if configured)
 

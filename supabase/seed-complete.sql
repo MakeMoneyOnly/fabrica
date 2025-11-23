@@ -131,7 +131,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO orders (product_id, creator_id, customer_email, customer_name, customer_phone, amount, currency, payment_provider, payment_provider_id, payment_status, paid_at)
 SELECT 
   p.id, p.creator_id, 'customer1@example.com', 'Teshome Bekele', '+251911111111',
-  p.price, 'ETB', 'telebirr', 'telebirr_txn_001', 'completed', NOW() - INTERVAL '5 days'
+  p.price, 'ETB', 'chapa', 'chapa_txn_001', 'completed', NOW() - INTERVAL '5 days'
 FROM products p
 JOIN users u ON p.creator_id = u.id
 WHERE u.email = 'abeba.tesfaye@example.com' AND p.title LIKE '%Coffee Guide%'
@@ -140,7 +140,7 @@ LIMIT 1;
 INSERT INTO orders (product_id, creator_id, customer_email, customer_name, customer_phone, amount, currency, payment_provider, payment_provider_id, payment_status, paid_at)
 SELECT 
   p.id, p.creator_id, 'customer2@example.com', 'Alemitu Tadesse', '+251922222222',
-  p.price, 'ETB', 'telebirr', 'telebirr_txn_002', 'completed', NOW() - INTERVAL '3 days'
+  p.price, 'ETB', 'chapa', 'chapa_txn_002', 'completed', NOW() - INTERVAL '3 days'
 FROM products p
 JOIN users u ON p.creator_id = u.id
 WHERE u.email = 'abeba.tesfaye@example.com' AND p.title LIKE '%Coffee Guide%'
@@ -149,7 +149,7 @@ LIMIT 1;
 INSERT INTO orders (product_id, creator_id, customer_email, customer_name, customer_phone, amount, currency, payment_provider, payment_provider_id, payment_status, paid_at, booking_datetime, booking_timezone)
 SELECT 
   p.id, p.creator_id, 'customer3@example.com', 'Mulugeta Haile', '+251933333333',
-  p.price, 'ETB', 'telebirr', 'telebirr_txn_003', 'completed', NOW() - INTERVAL '2 days',
+  p.price, 'ETB', 'chapa', 'chapa_txn_003', 'completed', NOW() - INTERVAL '2 days',
   NOW() + INTERVAL '7 days', 'Africa/Addis_Ababa'
 FROM products p
 JOIN users u ON p.creator_id = u.id
@@ -169,7 +169,7 @@ LIMIT 1;
 INSERT INTO orders (product_id, creator_id, customer_email, customer_name, customer_phone, amount, currency, payment_provider, payment_status)
 SELECT 
   p.id, p.creator_id, 'customer5@example.com', 'Kebede Worku', '+251955555555',
-  p.price, 'ETB', 'telebirr', 'pending'
+  p.price, 'ETB', 'chapa', 'pending'
 FROM products p
 JOIN users u ON p.creator_id = u.id
 WHERE u.email = 'abeba.tesfaye@example.com' AND p.title LIKE '%Recipes%'
@@ -179,7 +179,7 @@ LIMIT 1;
 INSERT INTO orders (product_id, creator_id, customer_email, customer_name, customer_phone, amount, currency, payment_provider, payment_provider_id, payment_status)
 SELECT 
   p.id, p.creator_id, 'customer7@example.com', 'Getachew Mekuria', '+251977777777',
-  p.price, 'ETB', 'telebirr', 'telebirr_txn_failed_001', 'failed'
+  p.price, 'ETB', 'chapa', 'chapa_txn_failed_001', 'failed'
 FROM products p
 JOIN users u ON p.creator_id = u.id
 WHERE u.email = 'sara.alemayehu@example.com' AND p.title LIKE '%Training%'

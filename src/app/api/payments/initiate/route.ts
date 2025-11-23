@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getTelebirrClient } from '@/lib/payments/telebirr'
+import { getChapaClient } from '@/lib/payments/chapa'
 import { initiatePaymentSchema } from '@/lib/validations/payments'
 import { validateRequest, validationErrorResponse } from '@/lib/validations/utils'
 import { paymentLimiter } from '@/lib/ratelimit'
@@ -8,10 +8,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { NotFoundError, BadGatewayError } from '@/lib/api/errors'
 import { handleApiError, withErrorHandling } from '@/lib/api/middleware'
 import { successResponse } from '@/lib/api/response'
+import * as Sentry from '@sentry/nextjs'
+import { env } from '@/lib/env'
 
 /**
  * POST /api/payments/initiate
- * Initiate a Telebirr payment for an order
+ * Initiate a Chapa payment for an order
+ * Documentation: https://developer.chapa.co/integrations/accept-payments
  */
 async function handler(req: NextRequest): Promise<NextResponse> {
   // Apply rate limiting
@@ -93,7 +96,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
         customer_phone: customerPhone,
         amount: product.price || 0,
         payment_status: 'pending',
-        payment_provider: 'telebirr',
+        payment_provider: 'chapa',
       })
       .select()
       .single()
@@ -102,24 +105,63 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       throw new Error('Failed to create order')
     }
 
-    // Initiate payment with Telebirr
-    const telebirrClient = getTelebirrClient()
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const paymentResult = await telebirrClient.initiatePayment({
+    // Initiate payment with Chapa
+    const chapaClient = getChapaClient()
+    const baseUrl = env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+    // Log payment initiation attempt
+    Sentry.addBreadcrumb({
+      category: 'payment',
+      message: 'Initiating Chapa payment',
+      level: 'info',
+      data: {
+        orderId: order.id,
+        productId: product.id,
+        amount: product.price || 0,
+        customerEmail,
+      },
+    })
+
+    const paymentResult = await chapaClient.initiatePayment({
       orderId: order.id,
       amount: product.price || 0,
       subject: product.title,
       customerName,
+      customerEmail,
       customerPhone,
       returnUrl: `${baseUrl}/orders/${order.id}/success`,
-      notifyUrl: `${baseUrl}/api/webhooks/telebirr`,
+      notifyUrl: `${baseUrl}/api/webhooks/chapa`,
     })
 
     if (!paymentResult.success || !paymentResult.paymentUrl) {
+      // Log payment initiation failure
+      Sentry.captureMessage('Chapa payment initiation failed', {
+        level: 'error',
+        tags: { component: 'payment-api', operation: 'initiatePayment' },
+        extra: {
+          orderId: order.id,
+          productId: product.id,
+          amount: product.price || 0,
+          chapaError: paymentResult.error,
+        },
+      })
+
       // Update order status to failed
       await supabase.from('orders').update({ payment_status: 'failed' }).eq('id', order.id)
       throw new BadGatewayError(paymentResult.error || 'Payment initiation failed')
     }
+
+    // Log successful payment initiation (without sensitive data)
+    Sentry.addBreadcrumb({
+      category: 'payment',
+      message: 'Chapa payment initiated successfully',
+      level: 'info',
+      data: {
+        orderId: order.id,
+        transactionId: paymentResult.transactionId,
+        hasPaymentUrl: !!paymentResult.paymentUrl,
+      },
+    })
 
     // Update order with payment URL in metadata
     await supabase
