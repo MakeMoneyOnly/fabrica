@@ -8,6 +8,9 @@ import { ChapaClient, createChapaClient, getChapaClient } from '@/lib/payments/c
 import type { InitiatePaymentParams } from '@/lib/payments/chapa'
 import crypto from 'crypto'
 
+// Type for mocked fetch function
+type MockedFetch = vi.MockedFunction<typeof fetch>
+
 // Mock Sentry to avoid errors during tests
 vi.mock('@sentry/nextjs', () => ({
   captureException: vi.fn(),
@@ -63,10 +66,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.initiatePayment(mockParams)
 
@@ -94,16 +97,16 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const params = { ...mockParams, customerName: 'John' }
       const result = await client.initiatePayment(params)
 
       expect(result.success).toBe(true)
-      const callArgs = (global.fetch as any).mock.calls[0]
+      const callArgs = (global.fetch as MockedFetch).mock.calls[0]
       const payload = JSON.parse(callArgs[1].body)
       expect(payload.first_name).toBe('John')
       expect(payload.last_name).toBe('John')
@@ -118,16 +121,16 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const params = { ...mockParams, customerName: 'John Michael Doe' }
       const result = await client.initiatePayment(params)
 
       expect(result.success).toBe(true)
-      const callArgs = (global.fetch as any).mock.calls[0]
+      const callArgs = (global.fetch as MockedFetch).mock.calls[0]
       const payload = JSON.parse(callArgs[1].body)
       expect(payload.first_name).toBe('John')
       expect(payload.last_name).toBe('Michael Doe')
@@ -139,10 +142,10 @@ describe('ChapaClient', () => {
         message: 'Insufficient funds',
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: false,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.initiatePayment(mockParams)
 
@@ -152,7 +155,7 @@ describe('ChapaClient', () => {
 
     it('should retry on network failures', async () => {
       // First two attempts fail, third succeeds
-      ;(global.fetch as any)
+      ;(global.fetch as MockedFetch)
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
@@ -164,7 +167,7 @@ describe('ChapaClient', () => {
               tx_ref: 'order-123',
             },
           }),
-        })
+        } as Response)
 
       const result = await client.initiatePayment(mockParams)
 
@@ -173,7 +176,7 @@ describe('ChapaClient', () => {
     })
 
     it('should return error after max retries', async () => {
-      ;(global.fetch as any).mockRejectedValue(new Error('Network error'))
+      ;(global.fetch as MockedFetch).mockRejectedValue(new Error('Network error'))
 
       const result = await client.initiatePayment(mockParams)
 
@@ -190,10 +193,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.initiatePayment(mockParams)
 
@@ -213,10 +216,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.verifyPayment('order-123')
 
@@ -244,10 +247,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.verifyPayment('order-123')
 
@@ -264,10 +267,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.verifyPayment('order-123')
 
@@ -281,10 +284,10 @@ describe('ChapaClient', () => {
         message: 'Transaction not found',
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: false,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.verifyPayment('order-123')
 
@@ -293,7 +296,7 @@ describe('ChapaClient', () => {
     })
 
     it('should handle network errors', async () => {
-      ;(global.fetch as any).mockRejectedValue(new Error('Network error'))
+      ;(global.fetch as MockedFetch).mockRejectedValue(new Error('Network error'))
 
       const result = await client.verifyPayment('order-123')
 
@@ -312,10 +315,10 @@ describe('ChapaClient', () => {
         },
       }
 
-      ;(global.fetch as any).mockResolvedValueOnce({
+      ;(global.fetch as MockedFetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResponse,
-      })
+      } as Response)
 
       const result = await client.queryPayment('order-123')
 

@@ -38,8 +38,12 @@ describe('POST /api/webhooks/chapa', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env.CHAPA_WEBHOOK_SECRET = 'test-webhook-secret'
-    vi.mocked(getChapaClient).mockReturnValue(mockChapaClient as any)
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any)
+    vi.mocked(getChapaClient).mockReturnValue(
+      mockChapaClient as unknown as ReturnType<typeof getChapaClient>
+    )
+    vi.mocked(createAdminClient).mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createAdminClient>
+    )
   })
 
   describe('Signature Verification', () => {
@@ -176,7 +180,8 @@ describe('POST /api/webhooks/chapa', () => {
         ref_id: 'chapa-ref-123',
         status: 'success',
       })
-      const signature = crypto
+      // Signature is prepared for test setup but not used directly in beforeEach
+      const _signature = crypto
         .createHmac('sha256', 'test-webhook-secret')
         .update(payload)
         .digest('hex')
@@ -343,7 +348,8 @@ describe('POST /api/webhooks/chapa', () => {
         ref_id: 'chapa-ref-123',
         status: 'failed',
       })
-      const signature = crypto
+      // Signature is prepared for test setup but not used directly in beforeEach
+      const _signature = crypto
         .createHmac('sha256', 'test-webhook-secret')
         .update(payload)
         .digest('hex')

@@ -31,10 +31,6 @@ const nextConfig = {
   },
   experimental: {
     scrollRestoration: true,
-    // Explicitly set the workspace root to avoid warnings about multiple lockfiles
-    turbopack: {
-      root: __dirname,
-    },
   },
   compress: true,
   compiler: {

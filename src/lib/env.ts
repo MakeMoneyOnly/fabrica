@@ -81,7 +81,103 @@ function validateEnv() {
 }
 
 /**
+ * Check if we're in build mode (Next.js build process)
+ * During build, we skip strict validation to allow builds without all runtime env vars
+ */
+function isBuildTime(): boolean {
+  // Next.js sets NEXT_PHASE during build
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return true
+  }
+
+  // During CI builds or when collecting page data, we're in build mode
+  // This allows Next.js to build without requiring all runtime env vars
+  if (process.env.CI === 'true' || process.env.NEXT_RUNTIME === undefined) {
+    // Check if we're in the build phase by looking for build-time indicators
+    // During build, Next.js doesn't have NEXT_RUNTIME set
+    const isBuildContext =
+      !process.env.NEXT_RUNTIME &&
+      (process.env.NODE_ENV === 'production' || process.env.CI === 'true')
+
+    return isBuildContext
+  }
+
+  return false
+}
+
+/**
+ * Lazy validation cache
+ */
+let validatedEnv: z.infer<typeof envSchema> | null = null
+
+/**
+ * Create build-time safe environment object
+ * Returns dummy values for required vars during build to prevent validation errors
+ */
+function createBuildTimeEnv(): z.infer<typeof envSchema> {
+  const processedEnv = preprocessEnv(process.env)
+
+  // During build, create a minimal valid object with dummy values
+  // This allows the build to complete, but validation will happen at runtime
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: processedEnv.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: processedEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key',
+    SUPABASE_SERVICE_ROLE_KEY: processedEnv.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key',
+    CLERK_SECRET_KEY: processedEnv.CLERK_SECRET_KEY || 'sk_test_dummy',
+    CLERK_WEBHOOK_SECRET: processedEnv.CLERK_WEBHOOK_SECRET || 'whsec_dummy',
+    CHAPA_SECRET_KEY: processedEnv.CHAPA_SECRET_KEY || 'CHASECK_TEST-dummy',
+    CHAPA_WEBHOOK_SECRET: processedEnv.CHAPA_WEBHOOK_SECRET || 'dummy-webhook-secret',
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: processedEnv.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    UPSTASH_REDIS_REST_URL: processedEnv.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: processedEnv.UPSTASH_REDIS_REST_TOKEN,
+    SENTRY_DSN: processedEnv.SENTRY_DSN,
+    NEXT_PUBLIC_APP_URL: processedEnv.NEXT_PUBLIC_APP_URL,
+  } as z.infer<typeof envSchema>
+}
+
+/**
  * Validated environment variables
  * Use this instead of process.env for type safety
+ *
+ * During build time, validation is skipped to allow builds without all runtime env vars.
+ * Validation will happen on first access at runtime.
  */
-export const env = validateEnv()
+function getEnv(): z.infer<typeof envSchema> {
+  // During build, return dummy values without validation
+  // This prevents validation errors during Next.js build phase
+  if (isBuildTime()) {
+    if (validatedEnv === null) {
+      validatedEnv = createBuildTimeEnv()
+    }
+    return validatedEnv
+  }
+
+  // At runtime, validate strictly
+  if (validatedEnv === null) {
+    validatedEnv = validateEnv()
+  }
+
+  return validatedEnv
+}
+
+/**
+ * Export validated environment variables
+ * Validation is lazy - only happens when first accessed
+ */
+export const env = new Proxy({} as z.infer<typeof envSchema>, {
+  get(_target, prop: string | symbol) {
+    const envObj = getEnv()
+    return envObj[prop as keyof typeof envObj]
+  },
+  ownKeys() {
+    return Object.keys(getEnv())
+  },
+  getOwnPropertyDescriptor(_target, prop) {
+    const envObj = getEnv()
+    return {
+      enumerable: true,
+      configurable: true,
+      value: envObj[prop as keyof typeof envObj],
+    }
+  },
+})
