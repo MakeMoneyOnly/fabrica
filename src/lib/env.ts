@@ -85,21 +85,27 @@ function validateEnv() {
  * During build, we skip strict validation to allow builds without all runtime env vars
  */
 function isBuildTime(): boolean {
-  // Next.js sets NEXT_PHASE during build
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
+  // Next.js sets NEXT_PHASE during build phases
+  if (
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    process.env.NEXT_PHASE === 'phase-export' ||
+    process.env.NEXT_PHASE === 'phase-development-build'
+  ) {
     return true
   }
 
-  // During CI builds or when collecting page data, we're in build mode
+  // During CI builds, we're always in build mode
   // This allows Next.js to build without requiring all runtime env vars
-  if (process.env.CI === 'true' || process.env.NEXT_RUNTIME === undefined) {
-    // Check if we're in the build phase by looking for build-time indicators
-    // During build, Next.js doesn't have NEXT_RUNTIME set
-    const isBuildContext =
-      !process.env.NEXT_RUNTIME &&
-      (process.env.NODE_ENV === 'production' || process.env.CI === 'true')
+  if (process.env.CI === 'true') {
+    return true
+  }
 
-    return isBuildContext
+  // During Next.js build, NEXT_RUNTIME is not set
+  // This is a reliable indicator we're in build phase (not runtime)
+  if (process.env.NEXT_RUNTIME === undefined && process.env.NODE_ENV === 'production') {
+    // Additional check: if we're running in Node but not in a runtime context,
+    // we're likely in build phase
+    return typeof process !== 'undefined' && !!process.versions?.node
   }
 
   return false
