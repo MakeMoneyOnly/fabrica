@@ -37,12 +37,38 @@ const envSchema = z.object({
 })
 
 /**
+ * Preprocess environment variables
+ * Converts empty strings to undefined for optional variables
+ */
+function preprocessEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const processed = { ...env }
+
+  // Convert empty strings to undefined for optional variables
+  const optionalVars = [
+    'NEXT_PUBLIC_APP_URL',
+    'UPSTASH_REDIS_REST_URL',
+    'UPSTASH_REDIS_REST_TOKEN',
+    'SENTRY_DSN',
+    'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+  ]
+
+  for (const key of optionalVars) {
+    if (processed[key] === '' || processed[key]?.trim() === '') {
+      delete processed[key]
+    }
+  }
+
+  return processed
+}
+
+/**
  * Parse and validate environment variables
  * Throws clear error if validation fails
  */
 function validateEnv() {
   try {
-    return envSchema.parse(process.env)
+    const processedEnv = preprocessEnv(process.env)
+    return envSchema.parse(processedEnv)
   } catch (error) {
     if (error instanceof z.ZodError) {
       const missingVars = error.issues
