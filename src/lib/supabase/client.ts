@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import { env } from '@/lib/env'
 
 /**
  * Creates a Supabase client for browser-side operations
@@ -10,14 +11,8 @@ import { createBrowserClient } from '@supabase/ssr'
  * @throws {Error} If required environment variables are not set
  */
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.'
-    )
-  }
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }

@@ -2,14 +2,11 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { env } from '@/lib/env'
 
 export async function POST(req: Request) {
-  // Get the webhook secret from environment variables
-  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
-
-  if (!WEBHOOK_SECRET) {
-    throw new Error('Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env.local')
-  }
+  // Get the webhook secret from validated environment variables
+  const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET
 
   // Get the headers (await since headers() returns a Promise in App Router)
   const headerPayload = await headers()
