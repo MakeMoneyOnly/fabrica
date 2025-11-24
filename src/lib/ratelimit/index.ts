@@ -1,15 +1,16 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
+import { env } from '@/lib/env'
 
 /**
  * Rate limiter configurations for different endpoint types
  * Uses Upstash Redis for distributed rate limiting
  */
 
-// Initialize Redis client from environment variables
+// Initialize Redis client from validated environment variables
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
+  url: env.UPSTASH_REDIS_REST_URL || '',
+  token: env.UPSTASH_REDIS_REST_TOKEN || '',
 })
 
 /**
