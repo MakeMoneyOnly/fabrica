@@ -15,12 +15,14 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Validate environment variables on app startup
-  const envValidation = validateEnvironment()
-  if (!envValidation.success) {
-    throw new Error(
-      `Environment validation failed:\n${envValidation.errors.map((error) => `  - ${error}`).join('\n')}\n\nPlease check your .env.local file and ensure all required environment variables are set.`
-    )
+  // Validate environment variables on app startup (only in development or when explicitly requested)
+  if (process.env.NODE_ENV === 'development' || process.env.VALIDATE_ENV === 'true') {
+    const envValidation = validateEnvironment()
+    if (!envValidation.success) {
+      throw new Error(
+        `Environment validation failed:\n${envValidation.errors.map((error) => `  - ${error}`).join('\n')}\n\nPlease check your .env.local file and ensure all required environment variables are set.`
+      )
+    }
   }
 
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY

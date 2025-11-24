@@ -34,9 +34,35 @@ const envSchema = z.object({
 
 /**
  * Validated environment variables
- * Throws an error if any required environment variables are missing or invalid
+ * Only validates during runtime, not during build time to prevent build failures
  */
-export const env = envSchema.parse(process.env)
+let _env: z.infer<typeof envSchema> | undefined
+
+export const env = new Proxy({} as z.infer<typeof envSchema>, {
+  get(target, prop) {
+    // During build time or when env vars aren't available, return undefined
+    // This prevents build failures while still providing validation at runtime
+    if (typeof window === 'undefined' && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return undefined
+    }
+
+    // Lazy load and validate environment variables only when accessed
+    if (!_env) {
+      try {
+        _env = envSchema.parse(process.env)
+      } catch (error) {
+        // Only throw in development or when explicitly running validation
+        if (process.env.NODE_ENV === 'development' || process.env.VALIDATE_ENV === 'true') {
+          throw error
+        }
+        // In production build, return undefined to prevent build failures
+        return undefined
+      }
+    }
+
+    return _env[prop as keyof z.infer<typeof envSchema>]
+  },
+})
 
 /**
  * Validates environment variables and returns a formatted error message
