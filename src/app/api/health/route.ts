@@ -14,7 +14,14 @@ export async function GET() {
   try {
     const dbStartTime = Date.now()
     const supabase = createAdminClient()
-    const { error } = await supabase.from('users').select('id').limit(1)
+
+    // Try a simple query that should work with basic permissions
+    // Use the auth.users table which should be accessible to service role
+    const { error } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    })
+
     const dbResponseTime = Date.now() - dbStartTime
 
     if (error) {

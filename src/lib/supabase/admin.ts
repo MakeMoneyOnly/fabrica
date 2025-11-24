@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
+import { env } from '@/lib/env'
 
 /**
  * Creates a Supabase admin client with service role key
@@ -12,14 +13,8 @@ import type { Database } from '@/types/supabase'
  * @throws {Error} If required environment variables are not set
  */
 export function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error(
-      'Missing Supabase admin environment variables. Please ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.'
-    )
-  }
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY
 
   const client = createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
