@@ -67,16 +67,16 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 
 ### 1.2. User Authentication & Onboarding
 
-- [ ] Integrate Clerk components for sign-up/in and user profile, styled to match the Fabrica brand.
-- [ ] Implement `middleware.ts` for route protection based on user role and auth state.
-- [ ] Create a resilient Clerk webhook handler (`/api/webhooks/clerk`) with retry logic to sync user data to Supabase.
-- [ ] Build the multi-step onboarding wizard UI using a state machine (Zustand).
-- [ ] Step 1: Implement username selection with a real-time availability check API.
+- [x] Integrate Clerk components for sign-up/in and user profile, styled to match the Fabrica brand.
+- [x] Implement `middleware.ts` for route protection based on user role and auth state.
+- [x] Create a resilient Clerk webhook handler (`/api/webhooks/clerk`) with retry logic to sync user data to Supabase.
+- [x] Build the multi-step onboarding wizard UI using a state machine (Zustand).
+- [x] Step 1: Implement username selection with a real-time availability check API.
 - [ ] Step 2: Build the profile setup form with secure avatar upload.
 - [ ] Step 3: Create the "Connect Payment Account" form with encryption for sensitive account info (supports Chapa/Telebirr via Chapa).
 - [ ] Step 4: Implement a guided "Create First Product" flow.
 - [ ] Step 5: Build the "Preview & Launch" step.
-- [ ] Configure and design all transactional email templates in Resend (Welcome, New Order, etc.).
+- [x] Configure and design all transactional email templates in Resend (Welcome, New Order, etc.).
 
 ### 1.3. Public Storefront & Pages
 

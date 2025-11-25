@@ -1,134 +1,189 @@
 'use client'
 
 import { useState } from 'react'
-import { useOnboardingStore } from '@/stores/onboarding-store'
-import { ArrowLeft, Rocket, Loader2, CheckCircle } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useOnboardingStore } from '@/stores/onboarding-store'
+import { Button } from '@/components/ui/button'
+import { Loader2, ArrowLeft, Rocket, ExternalLink, Check } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
+import { createClient } from '@/lib/supabase/client'
+import Image from 'next/image'
 
 export default function StepPreview() {
-  const { userData, productData, prevStep } = useOnboardingStore()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const supabase = createClient()
   const router = useRouter()
   const { user } = useUser()
+  const { userData, productData, prevStep } = useOnboardingStore()
+  const [isLaunching, setIsLaunching] = useState(false)
 
   const handleLaunch = async () => {
-    if (!user) {
-      return
-    }
-    setIsSubmitting(true)
+    if (!user) return
+
+    setIsLaunching(true)
 
     try {
-      // 1. Update User Profile
-      const { error: userError } = await supabase
+      // Mark onboarding as complete in Supabase
+      const supabase = await createClient()
+      const { error } = await supabase
         .from('users')
         .update({
-          username: userData.username,
-          full_name: userData.fullName,
-          bio: userData.bio,
-          // In a real app, we'd upload the avatar to storage first
-          // avatar_url: userData.avatarUrl
+          onboarding_completed: true,
+          onboarding_completed_at: new Date().toISOString(),
         })
         .eq('clerk_user_id', user.id)
 
-      if (userError) {
-        throw userError
+      if (error) {
+        console.error('Error completing onboarding:', error)
+        alert('Failed to complete onboarding. Please try again.')
+        setIsLaunching(false)
+        return
       }
 
-      // 2. Create First Product
-      // First get the user's UUID from our DB
-      const { data: dbUser, error: fetchError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('clerk_user_id', user.id)
-        .single()
-
-      if (fetchError || !dbUser) {
-        throw fetchError || new Error('User not found')
-      }
-
-      const { error: productError } = await supabase.from('products').insert({
-        creator_id: dbUser.id,
-        title: productData.title,
-        description: productData.description || 'Welcome to my first product!',
-        price: parseFloat(productData.price) || 0,
-        type: productData.type,
-        status: 'active',
-      })
-
-      if (productError) {
-        throw productError
-      }
-
-      // Success! Redirect to dashboard
+      // Redirect to dashboard
       router.push('/dashboard')
     } catch (error) {
-      console.error('Failed to launch store:', error)
-      // Handle error (show toast etc)
-    } finally {
-      setIsSubmitting(false)
+      console.error('Error:', error)
+      alert('An error occurred. Please try again.')
+      setIsLaunching(false)
     }
   }
+
+  const storefrontUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://fabrica.et'}/${userData.username}`
 
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-          <Rocket className="h-8 w-8 text-green-600" />
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <Check className="h-8 w-8 text-green-600" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900">Ready to launch?</h2>
-        <p className="mt-2 text-gray-600">Review your details before going live.</p>
+        <h2 className="mt-4 text-3xl font-bold text-gray-900">You're all set!</h2>
+        <p className="mt-2 text-lg text-gray-600">Your storefront is ready to launch</p>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      {/* Preview Card */}
+      <div className="overflow-hidden rounded-lg border-2 border-gray-200 bg-white">
+        <div className="bg-gradient-to-r from-gray-900 to-gray-700 p-6 text-white">
+          <h3 className="text-lg font-semibold">Your Storefront Preview</h3>
+          <p className="mt-1 text-sm text-gray-300">This is how customers will see your store</p>
+        </div>
+
         <div className="p-6 space-y-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">Store Profile</h3>
-              <p className="text-sm text-gray-500">fabrica.et/{userData.username}</p>
+          {/* Profile Section */}
+          <div className="flex items-start gap-4">
+            {userData.avatarUrl ? (
+              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full">
+                <Image
+                  src={userData.avatarUrl}
+                  alt={userData.fullName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-2xl font-bold text-gray-600">
+                {userData.fullName?.charAt(0) || '?'}
+              </div>
+            )}
+            <div className="flex-1">
+              <h4 className="text-xl font-bold text-gray-900">
+                {userData.fullName || 'Your Name'}
+              </h4>
+              <p className="mt-1 text-sm text-gray-600">@{userData.username}</p>
+              <p className="mt-2 text-sm text-gray-700">
+                {userData.bio || 'Your bio will appear here'}
+              </p>
             </div>
-            <CheckCircle className="h-5 w-5 text-green-500" />
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
-            <h3 className="text-lg font-medium text-gray-900">First Product</h3>
-            <div className="mt-2 flex items-center gap-4">
-              <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <span className="text-xl">📦</span>
+          {/* Product Preview */}
+          {productData.title && (
+            <div className="rounded-lg border border-gray-200 p-4">
+              <h5 className="font-semibold text-gray-900">{productData.title}</h5>
+              <p className="mt-1 text-sm text-gray-600">{productData.description}</p>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-lg font-bold text-gray-900">{productData.price} ETB</span>
+                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                  {productData.type === 'digital' && 'Digital Product'}
+                  {productData.type === 'booking' && '1-on-1 Booking'}
+                  {productData.type === 'link' && 'External Link'}
+                </span>
               </div>
-              <div>
-                <p className="font-medium text-gray-900">{productData.title}</p>
-                <p className="text-sm text-gray-500">{productData.price} ETB</p>
-              </div>
+            </div>
+          )}
+
+          {/* Storefront URL */}
+          <div className="rounded-lg bg-gray-50 p-4">
+            <p className="text-sm font-medium text-gray-700">Your storefront URL:</p>
+            <div className="mt-2 flex items-center gap-2">
+              <code className="flex-1 rounded bg-white px-3 py-2 text-sm text-gray-900 border border-gray-200">
+                {storefrontUrl}
+              </code>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(storefrontUrl, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* What's Next */}
+      <div className="rounded-lg bg-blue-50 p-6">
+        <h3 className="text-lg font-semibold text-blue-900">What's next?</h3>
+        <ul className="mt-3 space-y-2 text-sm text-blue-800">
+          <li className="flex items-start">
+            <span className="mr-2">✓</span>
+            <span>Share your storefront link with your audience</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">✓</span>
+            <span>Add more products and customize your store</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">✓</span>
+            <span>Track your sales and analytics in the dashboard</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2">✓</span>
+            <span>Start earning from your digital products!</span>
+          </li>
+        </ul>
+      </div>
+
+      {/* Navigation Buttons */}
       <div className="flex gap-4">
-        <button
+        <Button
           type="button"
           onClick={prevStep}
-          disabled={isSubmitting}
-          className="flex-1 flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all disabled:opacity-50"
+          variant="outline"
+          disabled={isLaunching}
+          className="flex-1"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </button>
-        <button
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+
+        <Button
+          type="button"
           onClick={handleLaunch}
-          disabled={isSubmitting}
-          className="flex-1 flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all disabled:opacity-50"
+          disabled={isLaunching}
+          className="flex-1 bg-green-600 hover:bg-green-700"
         >
-          {isSubmitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
+          {isLaunching ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Launching...
+            </>
           ) : (
             <>
-              Launch Store <Rocket className="ml-2 h-4 w-4" />
+              <Rocket className="mr-2 h-4 w-4" />
+              Launch My Store!
             </>
           )}
-        </button>
+        </Button>
       </div>
     </div>
   )
