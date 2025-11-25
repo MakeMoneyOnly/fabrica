@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { env } from '@/lib/env'
+import { generateReferralCode } from '@/lib/utils/referral'
 
 export async function POST(req: Request) {
   // Get the webhook secret from validated environment variables
@@ -86,6 +87,16 @@ export async function POST(req: Request) {
         }
 
         console.warn(`User created successfully: ${id}`)
+
+        // Send welcome email
+        try {
+          const { sendWelcomeEmail } = await import('@/lib/email/resend')
+          await sendWelcomeEmail(email, first_name || 'there')
+        } catch (emailError) {
+          // Log error but don't fail the webhook
+          console.error('Failed to send welcome email:', emailError)
+        }
+
         break
       }
 
