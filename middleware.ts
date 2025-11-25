@@ -1,4 +1,4 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
 
 /**
@@ -11,7 +11,6 @@ import type { NextRequest } from 'next/server'
 const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 // Validate Clerk key format before using it
-// Clerk keys start with pk_test_ or pk_live_ and are at least 20 characters
 const isValidClerkKey =
   publishableKey &&
   publishableKey.length > 20 &&
@@ -19,8 +18,23 @@ const isValidClerkKey =
   !publishableKey.includes('your_') &&
   !publishableKey.includes('xxx')
 
+// Define protected routes
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/onboarding(.*)',
+  '/api/products(.*)',
+  '/api/orders(.*)',
+])
+
+// Define public routes (optional, but good for clarity)
+// const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)', '/api/webhooks(.*)'])
+
 export default isValidClerkKey
-  ? clerkMiddleware()
+  ? clerkMiddleware(async (auth, req) => {
+      if (isProtectedRoute(req)) {
+        await auth.protect()
+      }
+    })
   : (_req: NextRequest) => {
       // Return early if Clerk is not configured
       // This allows development without Clerk setup
