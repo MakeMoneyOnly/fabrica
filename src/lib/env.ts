@@ -18,6 +18,9 @@ const envSchema = z.object({
   CHAPA_SECRET_KEY: z.string().min(1, 'CHAPA_SECRET_KEY is required'),
   CHAPA_WEBHOOK_SECRET: z.string().min(1, 'CHAPA_WEBHOOK_SECRET is required'),
 
+  // Resend Email Configuration
+  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+
   // Redis Rate Limiting (optional for development)
   UPSTASH_REDIS_REST_URL: z.string().url('UPSTASH_REDIS_REST_URL must be a valid URL').optional(),
   UPSTASH_REDIS_REST_TOKEN: z
