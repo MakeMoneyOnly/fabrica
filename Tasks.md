@@ -72,10 +72,10 @@ _The main development phase to build all "Must-Have" features for the MVP launch
 - [x] Create a resilient Clerk webhook handler (`/api/webhooks/clerk`) with retry logic to sync user data to Supabase.
 - [x] Build the multi-step onboarding wizard UI using a state machine (Zustand).
 - [x] Step 1: Implement username selection with a real-time availability check API.
-- [ ] Step 2: Build the profile setup form with secure avatar upload.
-- [ ] Step 3: Create the "Connect Payment Account" form with encryption for sensitive account info (supports Chapa/Telebirr via Chapa).
-- [ ] Step 4: Implement a guided "Create First Product" flow.
-- [ ] Step 5: Build the "Preview & Launch" step.
+- [x] Step 2: Build the profile setup form with secure avatar upload.
+- [x] Step 3: Create the "Connect Payment Account" form with encryption for sensitive account info (supports Chapa/Telebirr via Chapa).
+- [x] Step 4: Implement a guided "Create First Product" flow.
+- [x] Step 5: Build the "Preview & Launch" step.
 - [x] Configure and design all transactional email templates in Resend (Welcome, New Order, etc.).
 
 ### 1.3. Public Storefront & Pages

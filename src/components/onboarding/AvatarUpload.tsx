@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Upload, X, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createClient } from '@/lib/supabase/client'
+import { useSupabaseClient } from '@/hooks/useSupabaseClient'
 import { useUser } from '@clerk/nextjs'
 import Image from 'next/image'
 
@@ -15,13 +15,14 @@ interface AvatarUploadProps {
 
 export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) {
   const { user } = useUser()
+  const supabase = useSupabaseClient()
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !user) return
+    if (!file || !user || !supabase) return
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -39,36 +40,41 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
     setError('')
 
     try {
-      const supabase = await createClient()
-
-      // Generate unique filename
+      // Generate unique filename with sanitized name
       const fileExt = file.name.split('.').pop()
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9]/g, '_')
+      const fileName = `${user.id}-${Date.now()}-${sanitizedName}.${fileExt}`
+      const filePath = `${fileName}` // Upload directly to bucket root or use a folder if preferred
+
+      console.log('Uploading to path:', filePath)
 
       // Upload to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
-        .from('user-uploads')
+        .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false,
+          upsert: true, // Allow overwriting if collision (unlikely with timestamp)
         })
 
       if (uploadError) {
-        console.error('Upload error:', uploadError)
-        setError('Failed to upload image')
-        return
+        console.error('Upload error details:', {
+          message: uploadError.message,
+          name: uploadError.name,
+          cause: uploadError.cause,
+        })
+        throw uploadError
       }
 
       // Get public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from('user-uploads').getPublicUrl(filePath)
+      } = supabase.storage.from('avatars').getPublicUrl(filePath)
 
+      console.log('Upload successful, public URL:', publicUrl)
       onChange(publicUrl)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading avatar:', err)
-      setError('An error occurred while uploading')
+      setError(err.message || 'An error occurred while uploading')
     } finally {
       setIsUploading(false)
     }

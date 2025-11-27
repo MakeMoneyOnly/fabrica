@@ -1,12 +1,24 @@
-import HeroSection from '@/components/ui/hero-section'
+import { HeroSection } from '@/components/ui/hero-section'
 import { StatsSection } from '@/components/ui/stats-section'
 import { ImageCarousel } from '@/components/ui/image-carousel'
 import { Header } from '@/components/layout/Header'
 import { HeaderWithAuth } from '@/components/layout/HeaderWithAuth'
 import { isClerkConfigured } from '@/lib/utils/clerk'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
-export default function Home() {
+export default async function Home() {
+  // Check authentication status
+  const { userId } = await auth()
+
+  // If user is already signed in, redirect to onboarding
+  // The onboarding page will handle redirecting to dashboard if already completed
+  if (userId) {
+    redirect('/onboarding')
+  }
+
   const clerkConfigured = isClerkConfigured()
+
   const demoImages = [
     {
       id: '1',

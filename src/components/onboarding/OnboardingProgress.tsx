@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OnboardingStep } from '@/stores/onboarding-store'
+import { motion } from 'framer-motion'
 
 interface OnboardingProgressProps {
   currentStep: OnboardingStep
@@ -10,11 +11,11 @@ interface OnboardingProgressProps {
 }
 
 const steps: Array<{ name: OnboardingStep; title: string; description: string }> = [
-  { name: 'username', title: 'Username', description: 'Choose your unique username' },
-  { name: 'profile', title: 'Profile', description: 'Set up your profile' },
-  { name: 'payment', title: 'Payment', description: 'Connect payment account' },
-  { name: 'product', title: 'Product', description: 'Create your first product' },
-  { name: 'preview', title: 'Launch', description: 'Preview and launch' },
+  { name: 'username', title: 'Username', description: 'Claim URL' },
+  { name: 'profile', title: 'Profile', description: 'Your Info' },
+  { name: 'payment', title: 'Payment', description: 'Get Paid' },
+  { name: 'product', title: 'Product', description: 'First Item' },
+  { name: 'preview', title: 'Launch', description: 'Go Live' },
 ] as const
 
 export function OnboardingProgress({ currentStep, completedSteps }: OnboardingProgressProps) {
@@ -22,18 +23,22 @@ export function OnboardingProgress({ currentStep, completedSteps }: OnboardingPr
 
   return (
     <div className="w-full py-8">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-4xl px-4">
         {/* Progress bar */}
         <div className="relative">
           {/* Background line */}
-          <div className="absolute left-0 top-5 h-0.5 w-full bg-gray-200" />
+          <div className="absolute left-0 top-5 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full w-full bg-slate-100" />
+          </div>
 
           {/* Progress line */}
-          <div
-            className="absolute left-0 top-5 h-0.5 bg-primary-600 transition-all duration-500"
-            style={{
+          <motion.div
+            className="absolute left-0 top-5 h-1 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-400 rounded-full"
+            initial={{ width: 0 }}
+            animate={{
               width: `${(currentIndex / (steps.length - 1)) * 100}%`,
             }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           />
 
           {/* Steps */}
@@ -44,36 +49,55 @@ export function OnboardingProgress({ currentStep, completedSteps }: OnboardingPr
               const isPast = currentIndex > index
 
               return (
-                <div key={step.name} className="flex flex-col items-center">
+                <div key={step.name} className="flex flex-col items-center group cursor-default">
                   {/* Step circle */}
-                  <div
+                  <motion.div
                     className={cn(
-                      'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-white transition-all duration-300',
+                      'relative flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300 z-10',
                       {
-                        'border-primary-600 bg-primary-600 text-white': isCurrent || isCompleted,
-                        'border-gray-300 text-gray-500': !isCurrent && !isCompleted && !isPast,
-                        'border-primary-600 text-primary-600': isPast && !isCompleted,
+                        'border-transparent bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30 scale-110':
+                          isCurrent,
+                        'border-transparent bg-slate-700 text-white': isCompleted,
+                        'border-slate-200 bg-white text-slate-400': !isCurrent && !isCompleted,
                       }
                     )}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   >
                     {isCompleted ? (
                       <Check className="h-5 w-5" />
                     ) : (
-                      <span className="text-sm font-semibold">{index + 1}</span>
+                      <span className="text-sm font-bold">{index + 1}</span>
                     )}
-                  </div>
+
+                    {/* Pulse effect for current step */}
+                    {isCurrent && (
+                      <span className="absolute inset-0 rounded-full bg-amber-500/20 animate-ping" />
+                    )}
+                  </motion.div>
 
                   {/* Step label */}
-                  <div className="mt-2 text-center">
+                  <div className="mt-3 text-center">
                     <p
-                      className={cn('text-sm font-medium', {
-                        'text-primary-600': isCurrent || isCompleted,
-                        'text-gray-500': !isCurrent && !isCompleted,
-                      })}
+                      className={cn(
+                        'text-xs font-bold uppercase tracking-wider transition-colors duration-300',
+                        {
+                          'text-slate-900': isCurrent || isCompleted,
+                          'text-slate-400': !isCurrent && !isCompleted,
+                        }
+                      )}
                     >
                       {step.title}
                     </p>
-                    <p className="mt-0.5 hidden text-xs text-gray-500 sm:block">
+                    <p
+                      className={cn(
+                        'mt-0.5 hidden text-[10px] font-medium sm:block transition-colors duration-300',
+                        {
+                          'text-slate-500': isCurrent || isCompleted,
+                          'text-slate-300': !isCurrent && !isCompleted,
+                        }
+                      )}
+                    >
                       {step.description}
                     </p>
                   </div>

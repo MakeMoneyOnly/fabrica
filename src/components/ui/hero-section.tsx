@@ -21,13 +21,13 @@ const ClerkAuthButton = dynamic(
       const { LiquidButton } = buttonMod
 
       /**
-       * Button component for authenticated users - redirects to dashboard
+       * Button component for authenticated users - redirects to onboarding
        */
       function AuthenticatedButton() {
         const router = useRouter()
 
         const handleClick = () => {
-          router.push('/dashboard')
+          router.push('/onboarding')
         }
 
         return (
@@ -42,7 +42,7 @@ const ClerkAuthButton = dynamic(
        */
       function UnauthenticatedButton() {
         return (
-          <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
+          <SignUpButton mode="modal" fallbackRedirectUrl="/onboarding">
             <LiquidButton className="text-white font-medium" size="lg">
               Build Your Store
             </LiquidButton>

@@ -37,33 +37,10 @@ export const profileSchema = z.object({
 
   socialLinks: z
     .object({
-      instagram: z
-        .string()
-        .url('Invalid Instagram URL')
-        .regex(/instagram\.com/, 'Must be an Instagram URL')
-        .optional()
-        .or(z.literal('')),
-
-      tiktok: z
-        .string()
-        .url('Invalid TikTok URL')
-        .regex(/tiktok\.com/, 'Must be a TikTok URL')
-        .optional()
-        .or(z.literal('')),
-
-      facebook: z
-        .string()
-        .url('Invalid Facebook URL')
-        .regex(/facebook\.com/, 'Must be a Facebook URL')
-        .optional()
-        .or(z.literal('')),
-
-      twitter: z
-        .string()
-        .url('Invalid Twitter/X URL')
-        .regex(/(twitter\.com|x\.com)/, 'Must be a Twitter/X URL')
-        .optional()
-        .or(z.literal('')),
+      instagram: z.string().max(30, 'Username too long').optional().or(z.literal('')),
+      tiktok: z.string().max(30, 'Username too long').optional().or(z.literal('')),
+      facebook: z.string().max(50, 'Username too long').optional().or(z.literal('')),
+      twitter: z.string().max(30, 'Username too long').optional().or(z.literal('')),
     })
     .optional(),
 })
