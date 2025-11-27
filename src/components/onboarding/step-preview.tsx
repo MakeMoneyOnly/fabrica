@@ -32,8 +32,16 @@ export default function StepPreview() {
         .eq('clerk_user_id', user.id)
 
       if (error) {
-        console.error('Error completing onboarding:', error)
-        alert('Failed to complete onboarding. Please try again.')
+        console.error('Error completing onboarding:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          clerkUserId: user.id,
+        })
+        alert(
+          `Failed to complete onboarding: ${error.message || 'Unknown error'}. Please try again.`
+        )
         setIsLaunching(false)
         return
       }
@@ -41,8 +49,12 @@ export default function StepPreview() {
       // Redirect to dashboard
       router.push('/dashboard')
     } catch (error) {
-      console.error('Error:', error)
-      alert('An error occurred. Please try again.')
+      console.error('Unexpected error during onboarding completion:', {
+        error: error instanceof Error ? error.message : error,
+        clerkUserId: user.id,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
+      alert('An unexpected error occurred. Please try again.')
       setIsLaunching(false)
     }
   }
