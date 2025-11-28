@@ -117,6 +117,33 @@ CHAPA_WEBHOOK_SECRET=your_test_webhook_secret_here
 - Check Chapa dashboard for payment attempts
 - Test webhook signature verification
 
+### Resend Email Service
+
+**Where to get:**
+
+1. Sign up at [Resend Dashboard](https://resend.com/)
+2. Complete account verification
+3. Go to **API Keys** section
+4. Create a new API key with appropriate permissions
+
+```env
+RESEND_API_KEY=re_your_api_key_here
+```
+
+**Notes:**
+
+- Required for email notifications and user communication
+- API key format: `re_xxxxx` (production keys)
+- Use test mode available in Resend for development
+- Supports transactional emails, marketing emails, and templates
+- Documentation: https://resend.com/docs
+
+**Verification:**
+
+- Test email sending functionality in your application
+- Check Resend dashboard for email delivery status
+- Verify email templates and domains are configured
+
 ## Optional Variables
 
 ### Upstash Redis (Rate Limiting)

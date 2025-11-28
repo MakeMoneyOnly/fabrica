@@ -1,475 +1,322 @@
-# Testing Guide for Audit Fixes
+# Testing Guide for Phase 1.2 Onboarding Features
 
-This guide will help you test all the implementations from the audit fixes.
+## 1. Environment Setup (5 minutes)
 
-## Prerequisites
+### Add the Encryption Key
 
-Before testing, ensure you have:
+Add this to your `.env.local` file:
 
-1. All environment variables configured (see `ENV_SETUP.md`)
-2. Supabase database running and accessible
-3. Clerk account set up with webhook endpoint configured
-4. Development server running: `npm run dev`
-
-## Phase 1: Foundation Critical Fixes
-
-### 1.1 Test Clerk Webhook Handler
-
-**Test User Creation:**
-
-1. Go to Clerk Dashboard → Webhooks
-2. Find your webhook endpoint: `https://your-domain.com/api/webhooks/clerk`
-3. Click "Send test event" → Select "user.created"
-4. Check Supabase database:
-   ```sql
-   SELECT * FROM users ORDER BY created_at DESC LIMIT 1;
-   ```
-5. Verify user was created with correct email, phone, and name
-
-**Test User Update:**
-
-1. Update a user in Clerk Dashboard (change email or name)
-2. Check Supabase database for updated record
-3. Verify changes are synced
-
-**Test User Deletion:**
-
-1. Delete a user in Clerk Dashboard
-2. Check logs (user.deleted event should be logged)
-
-### 1.2 Test Currency Formatting
-
-**Test in Browser Console:**
-
-```javascript
-// Import the function (adjust path as needed)
-import { formatETB } from '@/lib/utils/currency'
-
-// Test cases
-formatETB(299.99) // Should return "ETB 299.99" (not "ETB 2.99")
-formatETB(1000) // Should return "ETB 1,000.00"
-formatETB(0.5) // Should return "ETB 0.50"
+```env
+# Encryption key for sensitive data (payment accounts)
+ENCRYPTION_KEY=654ea2e9d60aeb3e756a771abd0a0ae7fd3b76aad4dc2b907afbedffdf5fb732
 ```
 
-**Run Unit Tests:**
+**Important:** This key was generated using Node's crypto module. It's a 64-character hex string (32 bytes). Keep this secret and never commit it to git!
+
+### Verify Other Required Environment Variables
+
+Make sure you have these in `.env.local`:
+
+```env
+# Clerk (should already be set)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_WEBHOOK_SECRET=whsec_...
+
+# Supabase (should already be set)
+NEXT_PUBLIC_SUPABASE_URL=https://...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Resend (should already be set)
+RESEND_API_KEY=re_...
+
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+## 2. Start the Development Server
 
 ```bash
-npm test -- currency.test.ts
+npm run dev
 ```
 
-### 1.3 Test Authentication
-
-**Test Sign In:**
-
-1. Navigate to your app
-2. Click "Sign In" button
-3. Complete Clerk sign-in flow
-4. Check browser console for user data
-5. Verify `useAuth()` hook returns correct user object
-
-**Test Sign Out:**
-
-1. While signed in, call `signOut()` from `useAuth()` hook
-2. Verify `isAuthenticated` becomes `false`
-3. Verify user is redirected or UI updates
-
-**Test Protected Routes:**
-
-1. Try accessing a protected route while not signed in
-2. Verify redirect to sign-in page
-3. Sign in and verify access granted
-
-### 1.4 Test Security Headers
-
-**Using Browser DevTools:**
-
-1. Open your app in browser
-2. Open DevTools → Network tab
-3. Reload page
-4. Click on any request (e.g., document request)
-5. Check Response Headers:
-   - `Content-Security-Policy` should be present
-   - `X-Frame-Options: SAMEORIGIN`
-   - `X-Content-Type-Options: nosniff`
-   - `Referrer-Policy: strict-origin-when-cross-origin`
-
-**Using curl:**
-
-```bash
-curl -I http://localhost:3000
-```
-
-## Phase 2: Validation & Security
-
-### 2.1 Test Input Validation
-
-**Test Payment API Validation:**
-
-```bash
-# Valid request
-curl -X POST http://localhost:3000/api/payments/initiate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "productId": "valid-uuid",
-    "customerEmail": "test@example.com",
-    "customerName": "Test User",
-    "customerPhone": "+251912345678"
-  }'
-
-# Invalid request (should return 400)
-curl -X POST http://localhost:3000/api/payments/initiate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "productId": "invalid",
-    "customerEmail": "not-an-email",
-    "customerPhone": "123"
-  }'
-```
-
-### 2.2 Test Rate Limiting
-
-**Note:** Rate limiting requires Upstash Redis. If not configured, it will be disabled.
-
-**Test Rate Limit:**
-
-```bash
-# Make multiple rapid requests
-for i in {1..10}; do
-  curl http://localhost:3000/api/health
-done
-
-# After limit exceeded, should get 429 status
-# Check response headers for:
-# X-RateLimit-Limit
-# X-RateLimit-Remaining
-# X-RateLimit-Reset
-```
-
-### 2.3 Test Error Handling
-
-**Test API Error Responses:**
-
-```bash
-# Test 404 error
-curl http://localhost:3000/api/products/non-existent-id
-
-# Should return:
-# {
-#   "success": false,
-#   "error": {
-#     "code": "NOT_FOUND",
-#     "message": "Resource not found"
-#   },
-#   "meta": {
-#     "timestamp": "..."
-#   }
-# }
-```
-
-## Phase 3: High Priority Fixes
-
-### 3.1 Test Header Component
-
-1. Navigate to homepage
-2. Check navigation links:
-   - When not signed in: Features, Pricing, About, Contact
-   - When signed in: Dashboard, Products, Analytics, Settings
-3. Check footer contact info uses constants (not hardcoded)
-4. Test mobile menu (should match desktop navigation)
-
-### 3.2 Test Stats Section
-
-1. Navigate to homepage
-2. Check stats section displays:
-   - Real numbers from database (or 0 if no data)
-   - Loading state while fetching
-   - Error state if API fails
-3. Verify copy is Fabrica-specific (not placeholder text)
-
-**Test Stats API:**
-
-```bash
-curl http://localhost:3000/api/stats
-
-# Should return:
-# {
-#   "success": true,
-#   "data": {
-#     "totalProducts": 0,
-#     "totalOrders": 0,
-#     "totalRevenue": 0,
-#     "activeCreators": 0
-#   }
-# }
-```
-
-### 3.3 Test Sentry Integration ✅
-
-**Sentry is fully implemented and configured. Test the following:**
-
-**Test API Route Error Capture:**
-
-```bash
-# Test the dedicated Sentry test endpoint
-curl http://localhost:3000/api/test-sentry
-
-# Should return:
-# {
-#   "success": false,
-#   "error": {
-#     "code": "TEST_ERROR",
-#     "message": "This is a test error for Sentry verification"
-#   },
-#   "meta": {
-#     "timestamp": "...",
-#     "note": "Check your Sentry dashboard - this error should appear there"
-#   }
-# }
-```
-
-**Test Frontend Error Capture:**
+The app should start at `http://localhost:3000`
 
-1. Visit `http://localhost:3000/sentry-example-page`
-2. Click "Throw Sample Error" button
-3. Check Sentry dashboard - should see error within seconds
-4. Verify error includes stack trace and context
+## 3. Testing the Onboarding Flow
 
-**Test Backend Error Capture:**
-
-```bash
-# Test the example API route
-curl http://localhost:3000/api/sentry-example-api
-
-# Should trigger error and appear in Sentry dashboard
-```
-
-**Run Automated Tests:**
-
-```bash
-# Run Sentry integration tests
-npm test -- sentry.test.ts
-
-# Run test-sentry route tests
-npm test -- test-sentry.test.ts
-```
-
-**Verify Sentry Configuration:**
-
-1. Check all config files use environment variables (no hardcoded DSNs)
-2. Verify `SENTRY_DSN` is set in `.env.local`
-3. Check Sentry dashboard for error reports
-4. Verify source maps are configured in `next.config.js`
-
-### 3.4 Test Health Check Endpoint
-
-```bash
-curl http://localhost:3000/api/health
-
-# Should return:
-# {
-#   "status": "healthy" | "degraded" | "unhealthy",
-#   "timestamp": "...",
-#   "services": {
-#     "database": { "status": "up", "responseTime": 123 },
-#     "storage": { "status": "up" },
-#     "auth": { "status": "up" }
-#   }
-# }
-```
+### Prerequisites
 
-### 3.5 Test Phone Validation
+- Clear your browser's local storage for localhost:3000
+- Sign out of Clerk if you're already signed in
 
-**Test Phone Utility:**
+### Step-by-Step Testing
 
-```typescript
-import { validateEthiopianPhone, formatEthiopianPhone } from '@/lib/utils/phone'
+#### Test 1: Sign Up & Username Selection
 
-// Valid formats
-validateEthiopianPhone('+251912345678') // true
-validateEthiopianPhone('0912345678') // true
-validateEthiopianPhone('912345678') // true
+1. Go to `http://localhost:3000`
+2. Click "Sign Up" or navigate to the sign-up page
+3. Create a new account with Clerk (use email or phone)
+4. You should be redirected to `/onboarding`
 
-// Invalid formats
-validateEthiopianPhone('123456789') // false
-validateEthiopianPhone('+1234567890') // false
+**Test Username Step:**
 
-// Formatting
-formatEthiopianPhone('912345678') // "+251 91 234 5678"
-```
+- Try entering an invalid username (e.g., `123abc`, `_test`, `ab`)
+  - Should show validation errors
+- Enter a valid username (e.g., `testuser123`)
+  - Should show a checkmark when available
+  - Should show an X and suggestions if taken
+- Click "Continue"
+  - Should save to Supabase and move to Step 2
 
-### 3.6 Test React Query
+**Verify in Supabase:**
 
-1. Check browser console for React Query DevTools (if installed)
-2. Verify queries are cached (check Network tab - should see cached responses)
-3. Test stats hook:
+- Go to your Supabase dashboard
+- Check the `users` table
+- Your user should have the username you entered
 
-   ```typescript
-   import { useStats } from '@/hooks/useAnalytics'
+#### Test 2: Profile Setup
 
-   function TestComponent() {
-     const { data, isLoading } = useStats()
-     // Should fetch and cache stats
-   }
-   ```
+**Test Avatar Upload:**
 
-## Phase 4: Chapa Payment Integration
+1. Click "Upload Photo"
+2. Try uploading a large file (>5MB)
+   - Should show error message
+3. Try uploading a non-image file
+   - Should show error message
+4. Upload a valid image (JPG/PNG, <5MB)
+   - Should show preview
+   - Should upload to Supabase Storage
 
-### 4.1 Test Chapa SDK
+**Test Form Fields:**
 
-**Note:** Requires Chapa test mode credentials.
+1. Enter your full name (required)
+2. Enter a bio (optional, max 500 chars)
+3. Add social media links (optional)
+   - Try invalid URLs - should show errors
+   - Enter valid Instagram/TikTok/Facebook/Twitter URLs
 
-**Test Signature Generation:**
+4. Click "Continue"
 
-```typescript
-import { getChapaClient } from '@/lib/payments/chapa'
+**Verify in Supabase:**
 
-const client = getChapaClient()
-// Signature generation is tested internally
-```
+- Check `users` table - should have `full_name`, `bio`, `avatar_url`, `social_links`
+- Check Storage bucket `user-uploads/avatars/` - should have your uploaded image
 
-**Test Payment Initiation:**
+#### Test 3: Payment Account
 
-```typescript
-const result = await client.initiatePayment({
-  orderId: 'test-order-123',
-  amount: 100,
-  subject: 'Test Product',
-  customerName: 'Test User',
-  customerPhone: '+251912345678',
-  returnUrl: 'http://localhost:3000/success',
-  notifyUrl: 'http://localhost:3000/api/webhooks/chapa',
-})
+**Test Telebirr Account:**
 
-console.log(result) // Should have paymentUrl or error
-```
+1. Enter account holder name
+2. Enter phone number:
+   - Try invalid format (e.g., `123`) - should show error
+   - Try valid format (e.g., `911234567`) - should accept
+3. Click "Continue"
 
-### 4.2 Test Payment Initiation API
+**Verify in Supabase:**
 
-```bash
-# Create a product first (or use existing product ID)
-curl -X POST http://localhost:3000/api/payments/initiate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "productId": "your-product-uuid",
-    "customerEmail": "customer@example.com",
-    "customerName": "Customer Name",
-    "customerPhone": "+251912345678"
-  }'
+- Check `users` table
+- Look at `payment_account` column
+- The `encrypted_account_number` should be encrypted (not readable)
+- The `account_name` should be plain text
 
-# Should return payment URL or error
-```
+**Test Skip Option:**
 
-### 4.3 Test Chapa Webhook
+- Click "Skip for now" instead
+- Should move to next step without saving payment info
 
-**Note:** Requires webhook URL to be publicly accessible (use ngrok for local testing).
+#### Test 4: Create First Product
 
-**Test Webhook Signature Verification:**
+**Test Product Type Selection:**
 
-1. Send test webhook from Chapa dashboard
-2. Check logs for signature verification
-3. Verify order status updates in database
+1. Click each product type (Digital, Booking, Link)
+   - Should highlight the selected type
 
-**Test Payment Success:**
+**Test Form:**
 
-1. Complete a test payment in Chapa test mode
-2. Check webhook receives success event
-3. Verify order status changes to 'completed'
-4. Check download link created (for digital products)
+1. Enter product title (required)
+2. Enter description (optional)
+3. Enter price:
+   - Try less than 10 - should show error
+   - Enter valid price (e.g., `99.99`)
+4. Click "Continue"
 
-## Phase 5: Environment Validation
+**Verify in Supabase:**
 
-### Test Environment Validation
+- Check `products` table
+- Should have your product with:
+  - `creator_id` matching your user
+  - `type`, `title`, `description`, `price`
+  - `is_active` = true
 
-**Test Missing Variables:**
+**Test Skip Option:**
 
-1. Remove a required env var from `.env.local`
-2. Try to start the app: `npm run dev`
-3. Should see clear error message listing missing variables
+- Click "Skip for now"
+- Should move to preview without creating product
 
-**Test Invalid Variables:**
+#### Test 5: Preview & Launch
 
-1. Set an invalid URL format for `NEXT_PUBLIC_SUPABASE_URL`
-2. Try to start the app
-3. Should see validation error
+**Verify Preview:**
 
-## Automated Testing
+1. Should show your avatar (if uploaded)
+2. Should show your name and username
+3. Should show your bio
+4. Should show your product (if created)
+5. Should show your storefront URL
 
-### Run All Tests
+**Test Launch:**
 
-```bash
-# Run unit tests
-npm test
+1. Click "Launch My Store!"
+2. Should mark onboarding as complete in Supabase
+3. Should redirect to `/dashboard`
 
-# Run type checking
-npm run type-check
+**Verify in Supabase:**
 
-# Run linting
-npm run lint
+- Check `users` table
+- `onboarding_completed` should be `true`
+- `onboarding_completed_at` should have a timestamp
 
-# Build (catches build-time errors)
-npm run build
-```
+## 4. Testing Navigation
 
-## Manual Testing Checklist
+### Test Back Button
 
-- [ ] Clerk webhook syncs users to database
-- [ ] Currency formatting displays correct amounts
-- [ ] Authentication works with Clerk
-- [ ] Security headers present in responses
-- [ ] Input validation rejects invalid data
-- [ ] Rate limiting works (if Upstash configured)
-- [ ] Error handling returns standardized format
-- [ ] Header shows correct navigation
-- [ ] Stats section shows real data
-- [ ] Health check endpoint works
-- [ ] Phone validation works
-- [ ] React Query caches data
-- [ ] Chapa payment initiation works
-- [ ] Chapa webhook processes payments
-- [ ] Environment validation catches missing vars
-- [ ] Sentry captures API route errors
-- [ ] Sentry captures frontend errors
-- [ ] Sentry captures React component errors
-- [ ] Sentry test endpoint returns proper error response
+1. Start onboarding again (clear local storage)
+2. Go through steps 1-3
+3. Click "Back" button
+4. Should navigate to previous step
+5. Data should be preserved in the form
 
-## Troubleshooting
+### Test Direct URL Access
+
+1. Try accessing `/onboarding` when already completed
+   - Should redirect to dashboard (if middleware is configured)
+2. Try accessing individual steps directly
+   - Should work if onboarding not complete
+
+## 5. Testing Edge Cases
+
+### Test Username Availability
+
+1. Create a user with username `testuser1`
+2. Sign out and create another account
+3. Try using `testuser1` again
+   - Should show "Username is already taken"
+   - Should show suggestions like `testuser11`, `testuser1_official`
+
+### Test Avatar Upload Errors
+
+1. Disconnect internet
+2. Try uploading avatar
+   - Should show error message
+3. Reconnect and try again
+   - Should work
+
+### Test Form Validation
+
+1. Leave required fields empty
+2. Try to continue
+   - Should show validation errors
+3. Fill fields with invalid data
+   - Should show specific error messages
+
+## 6. Testing Email Functionality
+
+### Test Welcome Email
+
+1. Create a new user account
+2. Check your email (or Resend dashboard in test mode)
+3. Should receive welcome email with:
+   - Personalized greeting
+   - Onboarding link
+   - Help center link
+
+**Note:** In test mode, emails go to `onboarding@resend.dev` and can be viewed in Resend dashboard.
+
+## 7. Debugging Tips
+
+### Check Browser Console
+
+- Open DevTools (F12)
+- Look for errors in Console tab
+- Check Network tab for failed API calls
+
+### Check Supabase Logs
+
+- Go to Supabase Dashboard > Logs
+- Check for any database errors
+- Verify RLS policies allow operations
+
+### Check Server Logs
+
+- Look at your terminal where `npm run dev` is running
+- Should show API calls and any server errors
 
 ### Common Issues
 
-**Clerk Webhook Not Working:**
+**"Failed to save" errors:**
 
-- Check webhook URL is publicly accessible
-- Verify `CLERK_WEBHOOK_SECRET` matches Clerk dashboard
-- Check Supabase RPC function exists: `create_user_with_referral`
+- Check Supabase connection
+- Verify environment variables
+- Check RLS policies
 
-**Rate Limiting Not Working:**
+**Avatar upload fails:**
 
-- Verify Upstash Redis credentials are set
-- Check Redis connection in Upstash dashboard
-- Rate limiting is optional - app works without it
+- Verify Supabase Storage bucket `user-uploads` exists
+- Check bucket permissions/RLS policies
 
-**Sentry Not Capturing Errors:**
+**Encryption errors:**
 
-- Verify `SENTRY_DSN` is set in `.env.local`
-- Check Sentry dashboard for project status
-- Visit `/api/test-sentry` to trigger a test error
-- Check browser console for Sentry initialization messages
-- Verify network requests to Sentry are not blocked (check ad-blockers)
-- Errors still logged to console if Sentry fails
-- Check `src/instrumentation.ts` is properly configured
+- Verify `ENCRYPTION_KEY` is set in `.env.local`
+- Key should be 64 characters (hex)
 
-**Chapa Integration Issues:**
+**Username not saving:**
 
-- Verify all Chapa env vars are set
-- Check Chapa test mode is accessible
-- Review Chapa API documentation for changes: https://developer.chapa.co/
+- Check Clerk webhook is configured
+- Verify `CLERK_WEBHOOK_SECRET` is correct
 
-## Next Steps
+## 8. Quick Test Checklist
 
-After testing:
+- [ ] Environment variables set (especially `ENCRYPTION_KEY`)
+- [ ] Dev server running (`npm run dev`)
+- [ ] Can sign up with Clerk
+- [ ] Username step works and saves to Supabase
+- [ ] Avatar upload works
+- [ ] Profile data saves to Supabase
+- [ ] Payment account encrypts and saves
+- [ ] Product creation works
+- [ ] Preview shows all data correctly
+- [ ] Launch completes onboarding
+- [ ] Redirects to dashboard
+- [ ] Data persists in Supabase
 
-1. Fix any issues found
-2. Update documentation with findings
-3. Set up production environment variables
-4. Deploy to staging for integration testing
-5. Set up monitoring and alerts
+## 9. No Remote Push Needed!
+
+You can test everything locally:
+
+- ✅ All features work on `localhost:3000`
+- ✅ Supabase is already remote (cloud database)
+- ✅ Clerk is already remote (cloud auth)
+- ✅ No need to deploy to test
+
+**When to push remotely:**
+
+- After local testing is successful
+- When you want to test on staging environment
+- Before merging to main branch
+
+## 10. Next Steps After Testing
+
+Once testing is complete:
+
+```bash
+# Commit any fixes
+git add .
+git commit -m "fix: address testing feedback"
+
+# Push to remote
+git push origin feature/phase-1.2-user-auth-onboarding
+
+# Create pull request for review
+# Merge to staging for team testing
+# Deploy to production after approval
+```

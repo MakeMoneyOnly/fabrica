@@ -11,6 +11,12 @@ interface OnboardingState {
     fullName: string
     bio: string
     avatarUrl: string | null
+    socialLinks?: {
+      instagram?: string
+      tiktok?: string
+      facebook?: string
+      twitter?: string
+    }
   }
   paymentData: {
     provider: 'chapa' | 'telebirr' | null
@@ -46,6 +52,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         fullName: '',
         bio: '',
         avatarUrl: null,
+        socialLinks: {},
       },
       paymentData: {
         provider: null,
@@ -88,7 +95,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       reset: () =>
         set({
           currentStep: 'username',
-          userData: { username: '', fullName: '', bio: '', avatarUrl: null },
+          userData: { username: '', fullName: '', bio: '', avatarUrl: null, socialLinks: {} },
           paymentData: { provider: null, accountNumber: '', accountName: '' },
           productData: { title: '', description: '', price: '', type: 'digital' },
         }),

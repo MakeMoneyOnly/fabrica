@@ -63,6 +63,10 @@ const envSchema = z.object({
     .min(1, 'Chapa secret key is required (format: CHASECK-xxxxx or CHASECK_TEST-xxxxx)'),
   CHAPA_WEBHOOK_SECRET: z.string().min(1, 'Chapa webhook secret is required'),
 
+  // Resend Email Service
+  // Documentation: https://resend.com/docs
+  RESEND_API_KEY: z.string().min(1, 'Resend API key is required (format: re_xxxxx)'),
+
   // Upstash Redis (optional)
   UPSTASH_REDIS_REST_URL: z.string().url('Invalid Upstash Redis URL').optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1, 'Upstash Redis token is required').optional(),
@@ -131,6 +135,7 @@ function verifyEnv() {
   logSuccess('CLERK_WEBHOOK_SECRET')
   logSuccess('CHAPA_SECRET_KEY')
   logSuccess('CHAPA_WEBHOOK_SECRET')
+  logSuccess('RESEND_API_KEY')
 
   if (validated.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     logSuccess('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY')

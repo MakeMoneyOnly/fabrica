@@ -86,6 +86,16 @@ export async function POST(req: Request) {
         }
 
         console.warn(`User created successfully: ${id}`)
+
+        // Send welcome email
+        try {
+          const { sendWelcomeEmail } = await import('@/lib/email/resend')
+          await sendWelcomeEmail(email, first_name || 'there')
+        } catch (emailError) {
+          // Log error but don't fail the webhook
+          console.error('Failed to send welcome email:', emailError)
+        }
+
         break
       }
 

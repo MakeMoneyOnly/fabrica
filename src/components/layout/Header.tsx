@@ -2,10 +2,20 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Plus } from 'lucide-react'
+import { Plus, User, LogOut } from 'lucide-react'
 import { SITE_CONTACT_PHONE, SITE_CONTACT_EMAIL } from '@/lib/constants/site'
 import { isClerkConfigured } from '@/lib/utils/clerk'
+
+// Extend Window interface for Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      signOut: () => Promise<void>
+    }
+  }
+}
 
 /**
  * Header component that works with or without Clerk
@@ -13,8 +23,15 @@ import { isClerkConfigured } from '@/lib/utils/clerk'
  *
  * @param isAuthenticated - Optional prop to override authentication state
  *                          When provided, Clerk hooks won't be called
+ * @param user - Optional user data (name, email, avatar) for authenticated users
  */
-export function Header({ isAuthenticated: authProp }: { isAuthenticated?: boolean } = {}) {
+export function Header({
+  isAuthenticated: authProp,
+  user,
+}: {
+  isAuthenticated?: boolean
+  user?: { name?: string; email?: string; avatar?: string }
+} = {}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const clerkConfigured = isClerkConfigured()
 
@@ -106,6 +123,56 @@ export function Header({ isAuthenticated: authProp }: { isAuthenticated?: boolea
           isMenuOpen ? 'translate-y-0' : '-translate-y-full pointer-events-none'
         )}
       >
+        {/* User Profile Section (if authenticated) - Compact */}
+        {showAuthenticatedNav && user && (
+          <div className="w-full px-4 sm:px-8 pt-4 pb-2 border-b border-gray-200">
+            <div className="max-w-[1920px] mx-auto">
+              <div className="flex items-center gap-3">
+                {/* Avatar - Smaller */}
+                <div className="relative h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.name || 'User'}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-gray-500">
+                      <User className="h-5 w-5" />
+                    </div>
+                  )}
+                </div>
+
+                {/* User Info - Compact */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-black truncate">{user.name || 'User'}</p>
+                  <p className="text-xs text-gray-600 truncate">{user.email}</p>
+                </div>
+
+                {/* Sign Out Button - Inline */}
+                <button
+                  onClick={() => {
+                    // Use Clerk's sign-out
+                    if (window.Clerk) {
+                      window.Clerk.signOut().then(() => {
+                        window.location.href = '/'
+                      })
+                    } else {
+                      window.location.href = '/sign-out'
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex-1 flex flex-col justify-center items-center space-y-4">
           <nav className="flex flex-col items-center space-y-2">
             {mobileMenuItems.map((item) => (
