@@ -9,6 +9,7 @@ import StepPreview from '@/components/onboarding/step-preview'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useSupabaseClient } from '@/hooks/useSupabaseClient'
 
 export default function OnboardingPage() {
   const { currentStep } = useOnboardingStore()
@@ -22,6 +23,28 @@ export default function OnboardingPage() {
       router.push('/')
     }
   }, [isLoaded, isSignedIn, router])
+
+  // Check if onboarding is already completed
+  const { user } = useUser()
+  const supabase = useSupabaseClient()
+
+  useEffect(() => {
+    async function checkCompletion() {
+      if (user && supabase) {
+        const { data } = await supabase
+          .from('users')
+          .select('onboarding_completed')
+          .eq('clerk_user_id', user.id)
+          .single()
+
+        if (data?.onboarding_completed) {
+          router.push('/dashboard')
+        }
+      }
+    }
+
+    checkCompletion()
+  }, [user, supabase, router])
 
   // Show loading state while checking auth
   if (!isLoaded) {
