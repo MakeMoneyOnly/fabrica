@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { createClient } from '@/lib/supabase/client'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { User, Store, CreditCard, Bell, Shield, Save, Upload, Check, Loader2 } from 'lucide-react'
+import { User, Store, CreditCard, Bell, Shield, Save, Upload, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -19,7 +19,7 @@ const tabs = [
 
 export default function SettingsPage() {
   const { userId, isLoaded } = useAuth()
-  const { user: clerkUser } = useUser()
+  const { user: _clerkUser } = useUser()
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -27,7 +27,9 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function fetchUserData() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -51,7 +53,9 @@ export default function SettingsPage() {
   }, [isLoaded, userId])
 
   const handleSaveProfile = async () => {
-    if (!userId || !userData) return
+    if (!userId || !userData) {
+      return
+    }
 
     setSaving(true)
     try {
@@ -65,7 +69,9 @@ export default function SettingsPage() {
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to update profile')
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
 
       toast.success('Profile updated successfully')
     } catch (error) {
@@ -211,9 +217,9 @@ export default function SettingsPage() {
                   <h2 className="text-lg font-semibold text-gray-900">Storefront Customization</h2>
                   <p className="text-gray-500">
                     Customize your storefront appearance in the{' '}
-                    <a href="/dashboard/store-editor" className="text-blue-600 hover:underline">
+                    <Link href="/dashboard/store-editor" className="text-blue-600 hover:underline">
                       Store Editor
-                    </a>
+                    </Link>
                   </p>
 
                   <div className="space-y-4">

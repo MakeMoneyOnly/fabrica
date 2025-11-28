@@ -12,7 +12,9 @@ export function Header() {
     const segments = pathname.split('/').filter(Boolean)
     const lastSegment = segments[segments.length - 1]
 
-    if (!lastSegment || lastSegment === 'dashboard') return 'Overview'
+    if (!lastSegment || lastSegment === 'dashboard') {
+      return 'Overview'
+    }
 
     return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
   }

@@ -14,7 +14,8 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1)
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+// Note: supabase client created but not used - using REST API directly
+const _supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
@@ -45,7 +46,9 @@ async function runMigrations() {
 
       for (let i = 0; i < statements.length; i++) {
         const statement = statements[i]
-        if (statement.length < 10) continue // Skip very short statements
+        if (statement.length < 10) {
+          continue // Skip very short statements
+        }
 
         try {
           // Use the REST API to execute SQL
@@ -67,17 +70,19 @@ async function runMigrations() {
             }
             console.error(`   ✗ Statement ${i + 1} failed:`, error.substring(0, 200))
           }
-        } catch (err: any) {
-          if (err.message?.includes('already exists')) {
+        } catch (err: unknown) {
+          const error = err as Error
+          if (error.message?.includes('already exists')) {
             continue
           }
-          console.error(`   ✗ Statement ${i + 1} error:`, err.message?.substring(0, 200))
+          console.error(`   ✗ Statement ${i + 1} error:`, error.message?.substring(0, 200))
         }
       }
 
       console.log(`   ✓ Migration completed\n`)
-    } catch (error: any) {
-      console.error(`   ✗ Failed to read migration file:`, error.message)
+    } catch (error: unknown) {
+      const err = error as Error
+      console.error(`   ✗ Failed to read migration file:`, err.message)
     }
   }
 

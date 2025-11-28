@@ -22,7 +22,9 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !user || !supabase) return
+    if (!file || !user || !supabase) {
+      return
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
@@ -49,7 +51,7 @@ export function AvatarUpload({ value, onChange, className }: AvatarUploadProps) 
       console.log('Uploading to path:', filePath)
 
       // Upload to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
+      const { data: _data, error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',

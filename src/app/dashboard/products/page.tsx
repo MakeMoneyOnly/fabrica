@@ -8,10 +8,8 @@ import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import {
   Plus,
   Search,
-  Filter,
   MoreVertical,
   Edit,
-  Trash2,
   Eye,
   LayoutGrid,
   List as ListIcon,
@@ -31,7 +29,9 @@ export default function ProductsPage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -54,7 +54,9 @@ export default function ProductsPage() {
           .eq('creator_id', user.id)
           .order('created_at', { ascending: false })
 
-        if (error) throw error
+        if (error) {
+          throw error
+        }
         setProducts(data || [])
       } catch (error) {
         console.error('Error fetching products:', error)

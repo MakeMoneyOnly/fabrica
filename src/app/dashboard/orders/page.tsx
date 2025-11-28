@@ -19,15 +19,28 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
+type Order = {
+  id: string
+  customer_name: string | null
+  customer_email: string | null
+  amount: number
+  currency: string
+  payment_status: string
+  created_at: string
+  products: { title: string } | null
+}
+
 export default function OrdersPage() {
   const { userId, isLoaded } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     async function fetchOrders() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -50,7 +63,9 @@ export default function OrdersPage() {
           .eq('creator_id', user.id)
           .order('created_at', { ascending: false })
 
-        if (error) throw error
+        if (error) {
+          throw error
+        }
         setOrders(data || [])
       } catch (error) {
         console.error('Error fetching orders:', error)
@@ -74,13 +89,13 @@ export default function OrdersPage() {
       header: 'Order ID',
       accessorKey: 'id',
       className: 'font-medium text-gray-900 w-[120px]',
-      cell: (item: any) => (
+      cell: (item: Order) => (
         <span className="font-mono text-xs text-gray-500">#{item.id.slice(0, 8)}</span>
       ),
     },
     {
       header: 'Customer',
-      cell: (item: any) => (
+      cell: (item: Order) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
             {item.customer_name?.charAt(0) || '?'}
@@ -96,19 +111,19 @@ export default function OrdersPage() {
       header: 'Product',
       accessorKey: 'products.title',
       className: 'text-gray-600 max-w-[200px] truncate',
-      cell: (item: any) => <span>{item.products?.title || 'Unknown Product'}</span>,
+      cell: (item: Order) => <span>{item.products?.title || 'Unknown Product'}</span>,
     },
     {
       header: 'Date',
       accessorKey: 'created_at',
       className: 'text-gray-500',
-      cell: (item: any) => <span>{format(new Date(item.created_at), 'MMM d, yyyy')}</span>,
+      cell: (item: Order) => <span>{format(new Date(item.created_at), 'MMM d, yyyy')}</span>,
     },
     {
       header: 'Amount',
       accessorKey: 'amount',
       className: 'font-medium text-gray-900',
-      cell: (item: any) => (
+      cell: (item: Order) => (
         <span>
           {item.amount.toLocaleString()} {item.currency}
         </span>
@@ -117,7 +132,7 @@ export default function OrdersPage() {
     {
       header: 'Status',
       accessorKey: 'payment_status',
-      cell: (item: any) => (
+      cell: (item: Order) => (
         <StatusBadge
           status={item.payment_status}
           type={

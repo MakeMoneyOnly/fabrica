@@ -58,7 +58,9 @@ export default function StepProduct() {
   const selectedType = watch('type')
 
   const onSubmit = async (data: QuickProductFormData) => {
-    if (!user) return
+    if (!user) {
+      return
+    }
 
     setIsSubmitting(true)
 

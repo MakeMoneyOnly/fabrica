@@ -46,7 +46,7 @@ export function OnboardingProgress({ currentStep, completedSteps }: OnboardingPr
             {steps.map((step, index) => {
               const isCompleted = completedSteps?.has(step.name) || false
               const isCurrent = currentStep === step.name
-              const isPast = currentIndex > index
+              const _isPast = currentIndex > index
 
               return (
                 <div key={step.name} className="flex flex-col items-center group cursor-default">

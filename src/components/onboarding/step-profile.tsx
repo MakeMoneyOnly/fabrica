@@ -43,7 +43,9 @@ export default function StepProfile() {
   const avatarUrl = watch('avatarUrl')
 
   const onSubmit = async (data: ProfileFormData) => {
-    if (!user || !supabase) return
+    if (!user || !supabase) {
+      return
+    }
 
     setIsSubmitting(true)
 

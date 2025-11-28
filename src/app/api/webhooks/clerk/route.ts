@@ -3,7 +3,6 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { env } from '@/lib/env'
-import { generateReferralCode } from '@/lib/utils/referral'
 
 export async function POST(req: Request) {
   // Get the webhook secret from validated environment variables

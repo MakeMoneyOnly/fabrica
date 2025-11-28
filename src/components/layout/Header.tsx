@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Plus, User, LogOut, Settings } from 'lucide-react'
+import { Plus, User, LogOut } from 'lucide-react'
 import { SITE_CONTACT_PHONE, SITE_CONTACT_EMAIL } from '@/lib/constants/site'
 import { isClerkConfigured } from '@/lib/utils/clerk'
 
@@ -130,10 +131,11 @@ export function Header({
                 {/* Avatar - Smaller */}
                 <div className="relative h-10 w-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                   {user.avatar ? (
-                    <img
+                    <Image
                       src={user.avatar}
                       alt={user.name || 'User'}
-                      className="h-full w-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center text-gray-500">

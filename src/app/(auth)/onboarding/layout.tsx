@@ -19,8 +19,12 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
 
   // Calculate completed steps based on user data
   const completedSteps = new Set<typeof currentStep>()
-  if (userData.username) completedSteps.add('username')
-  if (userData.fullName) completedSteps.add('profile')
+  if (userData.username) {
+    completedSteps.add('username')
+  }
+  if (userData.fullName) {
+    completedSteps.add('profile')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-slate-50 relative">

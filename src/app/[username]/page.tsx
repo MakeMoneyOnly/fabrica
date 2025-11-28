@@ -2,16 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import {
-  Instagram,
-  Twitter,
-  Linkedin,
-  Youtube,
-  Globe,
-  Mail,
-  ExternalLink,
-  Check,
-} from 'lucide-react'
+import { Instagram, Twitter, Linkedin, Globe, ExternalLink } from 'lucide-react'
 
 type Props = {
   params: Promise<{ username: string }>
@@ -27,7 +18,9 @@ export async function generateMetadata({ params }: Props) {
     .eq('username', username)
     .single()
 
-  if (!user) return { title: 'Store Not Found' }
+  if (!user) {
+    return { title: 'Store Not Found' }
+  }
 
   return {
     title: `${user.full_name} | Fabrica Store`,
@@ -64,7 +57,7 @@ export default async function StorePage({ params }: Props) {
   }
 
   const primaryColor = settings.primary_color
-  const theme = settings.theme_name
+  const _theme = settings.theme_name
 
   return (
     <div className="min-h-screen bg-white">

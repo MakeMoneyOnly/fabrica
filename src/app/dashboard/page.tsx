@@ -27,7 +27,6 @@ import {
 } from 'recharts'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { formatDistanceToNow } from 'date-fns'
 
 // Types
 type DashboardStats = {
@@ -51,7 +50,15 @@ type RecentOrder = {
   products: { title: string } | null
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: Array<{ value: number }>
+  label?: string
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 border border-gray-100 shadow-lg rounded-lg">
@@ -68,7 +75,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function DashboardPage() {
   const { userId, isLoaded } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; full_name: string; username: string } | null>(null)
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
     storeVisits: 0,
@@ -80,11 +87,13 @@ export default function DashboardPage() {
     conversionTrend: 0,
   })
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
-  const [chartData, setChartData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<Array<{ name: string; total: number }>>([])
 
   useEffect(() => {
     async function fetchData() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()

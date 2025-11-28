@@ -12,7 +12,7 @@ import { format } from 'date-fns'
 
 export default function ReferralsPage() {
   const { userId, isLoaded } = useAuth()
-  const { user: clerkUser } = useUser()
+  const { user: _clerkUser } = useUser()
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [referralCode, setReferralCode] = useState('')
@@ -25,7 +25,9 @@ export default function ReferralsPage() {
 
   useEffect(() => {
     async function fetchReferralData() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()

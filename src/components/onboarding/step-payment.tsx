@@ -30,7 +30,9 @@ export default function StepPayment() {
   })
 
   const onSubmit = async (data: PaymentAccountFormData) => {
-    if (!user) return
+    if (!user) {
+      return
+    }
 
     setIsSubmitting(true)
 

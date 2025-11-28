@@ -16,7 +16,9 @@ export default function StepPreview() {
   const [isLaunching, setIsLaunching] = useState(false)
 
   const handleLaunch = async () => {
-    if (!user) return
+    if (!user) {
+      return
+    }
 
     setIsLaunching(true)
 

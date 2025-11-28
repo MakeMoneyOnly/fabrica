@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { createClient } from '@/lib/supabase/client'
-import { Palette, Layout, Type, Globe, Save, Loader2, Check, ExternalLink } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Palette, Layout, Globe, Save, Loader2, Check, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 const themes = [
@@ -31,7 +30,9 @@ export default function StoreEditorPage() {
 
   useEffect(() => {
     async function fetchSettings() {
-      if (!isLoaded || !userId) return
+      if (!isLoaded || !userId) {
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -79,7 +80,9 @@ export default function StoreEditorPage() {
   }, [isLoaded, userId])
 
   const handleSave = async () => {
-    if (!userId) return
+    if (!userId) {
+      return
+    }
 
     setSaving(true)
     try {
@@ -103,7 +106,9 @@ export default function StoreEditorPage() {
         updated_at: new Date().toISOString(),
       })
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       toast.success('Store settings saved successfully')
     } catch (error) {
       console.error('Error saving settings:', error)
