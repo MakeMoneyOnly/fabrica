@@ -5,14 +5,21 @@
     background-color: white;
     color: rgb(17 24 39);
     font-weight: 300;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /* Ultra-light typography */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 200;
     letter-spacing: -0.02em;
   }
@@ -26,7 +33,7 @@
 @layer components {
   /* Modern Grid Background */
   .grid-background {
-    background-image: 
+    background-image:
       linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
     background-size: 60px 60px;
@@ -65,7 +72,8 @@
 
   /* Floating particles */
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0) translateX(0);
       opacity: 0.2;
     }
@@ -89,7 +97,8 @@
 
   /* Pulse glow effect */
   @keyframes pulse-glow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.1;
       transform: scale(1);
     }
