@@ -15,10 +15,12 @@ const ClerkAuthButton = dynamic(
       import('@clerk/nextjs'),
       import('next/navigation'),
       import('@/components/ui/liquid-glass-button'),
-    ]).then(([clerkMod, routerMod, buttonMod]) => {
-      const { SignUpButton, SignedIn, SignedOut } = clerkMod
+      import('react'),
+    ]).then(([clerkMod, routerMod, buttonMod, reactMod]) => {
+      const { SignUpButton, SignedIn, SignedOut, useUser } = clerkMod
       const { useRouter } = routerMod
       const { LiquidButton } = buttonMod
+      const { useEffect } = reactMod
 
       /**
        * Button component for authenticated users - redirects to onboarding
@@ -51,6 +53,15 @@ const ClerkAuthButton = dynamic(
       }
 
       return function ClerkAuthWrapper() {
+        const { isSignedIn, isLoaded } = useUser()
+        const router = useRouter()
+
+        useEffect(() => {
+          if (isLoaded && isSignedIn) {
+            router.replace('/onboarding')
+          }
+        }, [isLoaded, isSignedIn, router])
+
         return (
           <>
             <SignedIn>

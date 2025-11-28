@@ -6,15 +6,37 @@ import { HeaderWithAuth } from '@/components/layout/HeaderWithAuth'
 import { isClerkConfigured } from '@/lib/utils/clerk'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function Home() {
   // Check authentication status
   const { userId } = await auth()
+  console.log('🏠 Home Page: userId:', userId)
 
-  // If user is already signed in, redirect to onboarding
-  // The onboarding page will handle redirecting to dashboard if already completed
+  // If user is already signed in, check onboarding status
   if (userId) {
-    redirect('/onboarding')
+    try {
+      const supabase = await createClient()
+
+      // Check if user has completed onboarding
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('onboarding_completed')
+        .eq('clerk_user_id', userId)
+        .single()
+
+      console.log('🏠 Home Page: User data:', user, 'Error:', error)
+
+      if (user?.onboarding_completed) {
+        console.log('➡️ Redirecting to /dashboard')
+        redirect('/dashboard')
+      } else {
+        console.log('➡️ Redirecting to /onboarding')
+        redirect('/onboarding')
+      }
+    } catch (err) {
+      console.error('🏠 Home Page: Error checking onboarding:', err)
+    }
   }
 
   const clerkConfigured = isClerkConfigured()

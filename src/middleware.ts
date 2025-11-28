@@ -29,9 +29,16 @@ const isProtectedRoute = createRouteMatcher([
 
 export default isValidClerkKey
   ? clerkMiddleware(async (auth, req) => {
-      if (isProtectedRoute(req)) {
-        const { userId } = await auth()
+      const { userId } = await auth()
 
+      // If user is authenticated and visiting home page, redirect to onboarding
+      // The onboarding page will handle the final redirect to dashboard if completed
+      if (userId && req.nextUrl.pathname === '/') {
+        const url = new URL('/onboarding', req.url)
+        return NextResponse.redirect(url)
+      }
+
+      if (isProtectedRoute(req)) {
         // If user is not authenticated and trying to access protected route
         // Redirect to home page
         if (!userId) {
