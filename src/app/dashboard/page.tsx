@@ -23,7 +23,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  TooltipProps,
   ResponsiveContainer,
 } from 'recharts'
 import { motion } from 'framer-motion'
@@ -52,7 +51,7 @@ type RecentOrder = {
   products: { title: string } | null
 }
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 border border-gray-100 shadow-lg rounded-lg">
