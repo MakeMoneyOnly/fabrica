@@ -71,7 +71,7 @@
     "critters": "^0.0.23",
     "dotenv": "^16.4.7",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.3",
+    "eslint-config-next": "^16.0.5",
     "eslint-plugin-storybook": "^10.0.8",
     "husky": "^9.1.7",
     "jsdom": "^27.2.0",
