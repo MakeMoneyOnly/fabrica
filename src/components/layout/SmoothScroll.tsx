@@ -10,6 +10,11 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const pathname = usePathname()
 
   useEffect(() => {
+    // Only enable smooth scroll on the home page
+    if (pathname !== '/') {
+      return
+    }
+
     // Dynamically import LocomotiveScroll only on client side
     if (scrollRef.current && typeof window !== 'undefined') {
       import('locomotive-scroll').then((LocomotiveScrollModule) => {
@@ -39,7 +44,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
         locomotiveScrollRef.current = null
       }
     }
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     if (locomotiveScrollRef.current) {

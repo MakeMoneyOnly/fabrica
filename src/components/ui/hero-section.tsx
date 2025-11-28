@@ -15,19 +15,21 @@ const ClerkAuthButton = dynamic(
       import('@clerk/nextjs'),
       import('next/navigation'),
       import('@/components/ui/liquid-glass-button'),
-    ]).then(([clerkMod, routerMod, buttonMod]) => {
-      const { SignUpButton, SignedIn, SignedOut } = clerkMod
+      import('react'),
+    ]).then(([clerkMod, routerMod, buttonMod, reactMod]) => {
+      const { SignUpButton, SignedIn, SignedOut, useUser } = clerkMod
       const { useRouter } = routerMod
       const { LiquidButton } = buttonMod
+      const { useEffect } = reactMod
 
       /**
-       * Button component for authenticated users - redirects to dashboard
+       * Button component for authenticated users - redirects to onboarding
        */
       function AuthenticatedButton() {
         const router = useRouter()
 
         const handleClick = () => {
-          router.push('/dashboard')
+          router.push('/onboarding')
         }
 
         return (
@@ -42,7 +44,7 @@ const ClerkAuthButton = dynamic(
        */
       function UnauthenticatedButton() {
         return (
-          <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
+          <SignUpButton mode="modal" fallbackRedirectUrl="/onboarding">
             <LiquidButton className="text-white font-medium" size="lg">
               Build Your Store
             </LiquidButton>
@@ -51,6 +53,15 @@ const ClerkAuthButton = dynamic(
       }
 
       return function ClerkAuthWrapper() {
+        const { isSignedIn, isLoaded } = useUser()
+        const router = useRouter()
+
+        useEffect(() => {
+          if (isLoaded && isSignedIn) {
+            router.replace('/onboarding')
+          }
+        }, [isLoaded, isSignedIn, router])
+
         return (
           <>
             <SignedIn>

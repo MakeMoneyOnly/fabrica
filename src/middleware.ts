@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 /**
  * Middleware configuration for Clerk authentication
@@ -26,19 +27,30 @@ const isProtectedRoute = createRouteMatcher([
   '/api/orders(.*)',
 ])
 
-// Define public routes (optional, but good for clarity)
-// const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)', '/api/webhooks(.*)'])
-
 export default isValidClerkKey
   ? clerkMiddleware(async (auth, req) => {
+      const { userId } = await auth()
+
+      // If user is authenticated and visiting home page, redirect to onboarding
+      // The onboarding page will handle the final redirect to dashboard if completed
+      if (userId && req.nextUrl.pathname === '/') {
+        const url = new URL('/onboarding', req.url)
+        return NextResponse.redirect(url)
+      }
+
       if (isProtectedRoute(req)) {
-        await auth.protect()
+        // If user is not authenticated and trying to access protected route
+        // Redirect to home page
+        if (!userId) {
+          const url = new URL('/', req.url)
+          return NextResponse.redirect(url)
+        }
       }
     })
   : (_req: NextRequest) => {
       // Return early if Clerk is not configured
       // This allows development without Clerk setup
-      return new Response(null, { status: 200 })
+      return NextResponse.next()
     }
 
 export const config = {
