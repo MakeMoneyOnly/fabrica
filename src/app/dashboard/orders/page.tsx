@@ -87,7 +87,7 @@ export default function OrdersPage() {
   const columns = [
     {
       header: 'Order ID',
-      accessorKey: 'id',
+      accessorKey: 'id' as keyof Order,
       className: 'font-medium text-gray-900 w-[120px]',
       cell: (item: Order) => (
         <span className="font-mono text-xs text-gray-500">#{item.id.slice(0, 8)}</span>
@@ -109,19 +109,18 @@ export default function OrdersPage() {
     },
     {
       header: 'Product',
-      accessorKey: 'products.title',
       className: 'text-gray-600 max-w-[200px] truncate',
       cell: (item: Order) => <span>{item.products?.title || 'Unknown Product'}</span>,
     },
     {
       header: 'Date',
-      accessorKey: 'created_at',
+      accessorKey: 'created_at' as keyof Order,
       className: 'text-gray-500',
       cell: (item: Order) => <span>{format(new Date(item.created_at), 'MMM d, yyyy')}</span>,
     },
     {
       header: 'Amount',
-      accessorKey: 'amount',
+      accessorKey: 'amount' as keyof Order,
       className: 'font-medium text-gray-900',
       cell: (item: Order) => (
         <span>
@@ -131,7 +130,7 @@ export default function OrdersPage() {
     },
     {
       header: 'Status',
-      accessorKey: 'payment_status',
+      accessorKey: 'payment_status' as keyof Order,
       cell: (item: Order) => (
         <StatusBadge
           status={item.payment_status}
