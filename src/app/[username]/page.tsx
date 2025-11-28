@@ -1,20 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
+import { CreatorProfile } from '@/components/storefront/CreatorProfile'
+import { ProductCard, ProductCardProps } from '@/components/storefront/ProductCard'
 import Link from 'next/link'
-import { Instagram, Twitter, Linkedin, Globe, ExternalLink } from 'lucide-react'
+import type { Metadata } from 'next'
 
 type Props = {
   params: Promise<{ username: string }>
 }
 
-export async function generateMetadata({ params }: Props) {
+// Enable ISR with 60-second revalidation
+export const revalidate = 60
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params
   const supabase = await createClient()
 
   const { data: user } = await supabase
     .from('users')
-    .select('full_name, bio')
+    .select('full_name, bio, avatar_url')
     .eq('username', username)
     .single()
 
@@ -22,9 +26,29 @@ export async function generateMetadata({ params }: Props) {
     return { title: 'Store Not Found' }
   }
 
+  const title = `${user.full_name} | Fabrica Store`
+  const description = user.bio || `Check out ${user.full_name}'s store on Fabrica.`
+  const ogImage = user.avatar_url || '/og-default.png'
+
   return {
-    title: `${user.full_name} | Fabrica Store`,
-    description: user.bio || `Check out ${user.full_name}'s store on Fabrica.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [ogImage],
+      type: 'profile',
+      url: `https://fabrica.et/${username}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+    alternates: {
+      canonical: `https://fabrica.et/${username}`,
+    },
   }
 }
 
@@ -56,160 +80,89 @@ export default async function StorePage({ params }: Props) {
     primary_color: '#2563eb',
   }
 
-  const primaryColor = settings.primary_color
-  const _theme = settings.theme_name
+  const primaryColor = settings.primary_color || '#2563eb'
+
+  // Transform products to match ProductCard props
+  const productCards: ProductCardProps[] =
+    products?.map((product) => ({
+      id: product.id,
+      title: product.title,
+      description: product.description || undefined,
+      price: Number(product.price) || 0,
+      currency: product.currency || 'ETB',
+      coverImageUrl: product.cover_image_url || undefined,
+      type: product.type as 'digital' | 'booking' | 'link',
+      externalUrl: product.external_url || undefined,
+      primaryColor,
+    })) || []
+
+  // Generate JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: user.full_name,
+    url: `https://fabrica.et/${username}`,
+    image: user.avatar_url,
+    description: user.bio,
+    sameAs: [
+      user.social_links?.instagram,
+      user.social_links?.twitter,
+      user.social_links?.linkedin,
+      user.social_links?.website,
+    ].filter(Boolean),
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header / Cover */}
-      <div className="relative h-48 md:h-64 bg-gray-50 overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundColor: primaryColor }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent" />
-      </div>
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-      {/* Profile Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
-        <div className="flex flex-col items-center text-center">
-          <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden mb-4">
-            {user.avatar_url ? (
-              <Image
-                src={user.avatar_url}
-                alt={user.full_name}
-                width={160}
-                height={160}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div
-                className="w-full h-full flex items-center justify-center text-4xl font-bold text-white"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {user.full_name?.charAt(0) || user.username.charAt(0)}
-              </div>
-            )}
-          </div>
-
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.full_name}</h1>
-          {user.bio && <p className="text-gray-600 max-w-lg mb-6 text-lg">{user.bio}</p>}
-
-          {/* Social Links */}
-          <div className="flex items-center gap-4 mb-10">
-            {user.social_links?.instagram && (
-              <a
-                href={user.social_links.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-pink-600 transition-colors"
-              >
-                <Instagram className="w-6 h-6" />
-              </a>
-            )}
-            {user.social_links?.twitter && (
-              <a
-                href={user.social_links.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
-              >
-                <Twitter className="w-6 h-6" />
-              </a>
-            )}
-            {user.social_links?.linkedin && (
-              <a
-                href={user.social_links.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-blue-700 transition-colors"
-              >
-                <Linkedin className="w-6 h-6" />
-              </a>
-            )}
-            {user.social_links?.website && (
-              <a
-                href={user.social_links.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-900 transition-colors"
-              >
-                <Globe className="w-6 h-6" />
-              </a>
-            )}
-          </div>
+      <div className="min-h-screen bg-white">
+        {/* Header / Cover */}
+        <div className="relative h-48 md:h-64 bg-gray-50 overflow-hidden">
+          <div className="absolute inset-0 opacity-10" style={{ backgroundColor: primaryColor }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent" />
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
-          {products?.map((product) => (
-            <Link
-              key={product.id}
-              href={product.external_url || '#'}
-              target={product.type === 'link' ? '_blank' : undefined}
-              className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-            >
-              {product.cover_image_url && (
-                <div className="aspect-video relative overflow-hidden bg-gray-100">
-                  <Image
-                    src={product.cover_image_url}
-                    alt={product.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {product.title}
-                  </h3>
-                  {product.type === 'link' && <ExternalLink className="w-5 h-5 text-gray-400" />}
-                </div>
+        {/* Profile Section */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
+          <CreatorProfile
+            fullName={user.full_name}
+            username={user.username}
+            bio={user.bio || undefined}
+            avatarUrl={user.avatar_url || undefined}
+            socialLinks={user.social_links || {}}
+            primaryColor={primaryColor}
+          />
 
-                {product.description && (
-                  <p className="text-gray-500 mb-4 line-clamp-2">{product.description}</p>
-                )}
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+            {productCards.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
 
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2">
-                    {product.price > 0 ? (
-                      <span className="text-lg font-bold text-gray-900">
-                        {product.price.toLocaleString()} {product.currency}
-                      </span>
-                    ) : (
-                      <span className="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded-md">
-                        Free
-                      </span>
-                    )}
-                  </div>
+          {/* Empty State */}
+          {productCards.length === 0 && (
+            <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+              <p className="text-gray-500">No products available yet.</p>
+            </div>
+          )}
+        </div>
 
-                  <button
-                    className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-opacity opacity-0 group-hover:opacity-100"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {product.type === 'link' ? 'Visit Link' : 'View Details'}
-                  </button>
-                </div>
-              </div>
+        {/* Footer */}
+        <footer className="border-t border-gray-100 py-8 text-center text-gray-400 text-sm">
+          <p>
+            Powered by{' '}
+            <Link href="/" className="font-semibold hover:text-gray-900">
+              Fabrica
             </Link>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {(!products || products.length === 0) && (
-          <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-            <p className="text-gray-500">No products available yet.</p>
-          </div>
-        )}
+          </p>
+        </footer>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-100 py-8 text-center text-gray-400 text-sm">
-        <p>
-          Powered by{' '}
-          <Link href="/" className="font-semibold hover:text-gray-900">
-            Fabrica
-          </Link>
-        </p>
-      </footer>
-    </div>
+    </>
   )
 }
